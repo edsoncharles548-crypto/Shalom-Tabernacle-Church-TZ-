@@ -138,17 +138,8 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .book-desc{font-size:11.5px;color:rgba(245,240,232,.48);line-height:1.5;}
 .dl-btn{margin-top:7px;background:rgba(201,168,76,.13);border:1px solid rgba(201,168,76,.38);color:var(--gold);border-radius:6px;padding:5px 11px;font-family:'Cinzel',serif;font-size:9.5px;font-weight:600;cursor:pointer;transition:all .2s;}
 
-/* ANNOUNCE */
-.ann-card{background:linear-gradient(135deg,rgba(15,30,56,.9),rgba(7,17,31,.9));border:1px solid rgba(201,168,76,.22);border-radius:12px;padding:15px;margin-bottom:12px;position:relative;overflow:hidden;}
-.ann-urgent{border-color:rgba(232,68,68,.45);background:linear-gradient(135deg,rgba(35,10,10,.9),rgba(20,7,7,.9));}
-.ann-urgent::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--red);}
-.ann-badge{display:inline-flex;align-items:center;gap:4px;font-family:'Cinzel',serif;font-size:8.5px;font-weight:600;letter-spacing:1px;padding:3px 9px;border-radius:20px;margin-bottom:9px;}
-.badge-urgent{background:rgba(232,68,68,.18);color:#FF9090;border:1px solid rgba(232,68,68,.28);}
-.badge-event{background:rgba(201,168,76,.13);color:var(--gold);border:1px solid rgba(201,168,76,.28);}
-.badge-info{background:rgba(100,150,232,.13);color:#90B4E8;border:1px solid rgba(100,150,232,.28);}
-.ann-title{font-family:'Cinzel',serif;font-size:13.5px;font-weight:600;color:var(--light);margin-bottom:5px;}
-.ann-body{font-size:13.5px;color:rgba(245,240,232,.68);line-height:1.65;}
-.ann-date{font-size:10.5px;color:rgba(245,240,232,.32);margin-top:9px;font-style:italic;}
+
+
 
 /* BROADCAST */
 .live-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(220,40,40,.18);color:#FF7070;border:1px solid rgba(220,40,40,.38);border-radius:20px;padding:4px 11px;font-family:'Cinzel',serif;font-size:9.5px;font-weight:700;letter-spacing:1.3px;}
@@ -487,6 +478,14 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 }
 .hymn-fullscreen-overlay.open{display:block;}
 
+/* PROJECTOR VIEW */
+#projector-view{position:fixed;inset:0;z-index:99999;background:radial-gradient(ellipse at 50% 40%,#0F1E38 0%,#040C18 100%);display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;}
+#projector-view.open{display:flex;}
+.proj-logo{font-family:'Cinzel Decorative',serif;font-size:28px;color:var(--gold);letter-spacing:2px;margin-bottom:40px;opacity:.85;}
+.proj-name{font-family:'Cinzel',serif;font-size:22px;color:var(--gold2);margin-bottom:24px;letter-spacing:1px;}
+.proj-text{font-family:'EB Garamond',serif;font-size:48px;line-height:1.5;color:var(--light);max-width:1100px;}
+#projector-jitsi{width:90vw;height:85vh;border-radius:16px;overflow:hidden;display:none;}
+
 .fs-header{
   position:sticky;top:0;z-index:10;
   background:linear-gradient(180deg,#040C18 0%,rgba(4,12,24,.95) 100%);
@@ -564,10 +563,10 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   <button class="nav-btn" onclick="showTab('media',this)"><span class="nav-icon">🎬</span>Media</button>
   <button class="nav-btn" onclick="showTab('videos',this)"><span class="nav-icon">▶️</span>Video</button>
   <button class="nav-btn" onclick="showTab('books',this)"><span class="nav-icon">📚</span>Vitabu</button>
-  <button class="nav-btn" onclick="showTab('announce',this)"><span class="nav-icon">📢</span>Habari</button>
   <button class="nav-btn" onclick="showTab('group',this)"><span class="nav-icon">👥</span>Vikundi</button>
   <button class="nav-btn" onclick="showTab('map',this)"><span class="nav-icon">🗺️</span>Ramani</button>
   <button class="nav-btn" onclick="showTab('admin',this)"><span class="nav-icon">⚙️</span>Admin</button>
+  <button class="nav-btn" onclick="showTab('jitsi',this)"><span class="nav-icon">🎥</span>Video Call</button>
 </nav>
 
 <div id="content">
@@ -615,17 +614,12 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
       <div class="home-tile-name">Vitabu</div>
       <div class="home-tile-sub">Soma & Jifunze</div>
     </div>
-    <div class="home-tile" onclick="showTab('announce',document.querySelectorAll('.nav-btn')[8])">
-      <span class="home-tile-icon">📢</span>
-      <div class="home-tile-name">Matangazo</div>
-      <div class="home-tile-sub">Habari za Kanisa</div>
-    </div>
-    <div class="home-tile" onclick="showTab('group',document.querySelectorAll('.nav-btn')[9])">
+    <div class="home-tile" onclick="showTab('group',document.querySelectorAll('.nav-btn')[8])">
       <span class="home-tile-icon">👥</span>
       <div class="home-tile-name">Vikundi</div>
       <div class="home-tile-sub">Kanisa & Vijana</div>
     </div>
-    <div class="home-tile" onclick="showTab('map',document.querySelectorAll('.nav-btn')[10])">
+    <div class="home-tile" onclick="showTab('map',document.querySelectorAll('.nav-btn')[9])">
       <span class="home-tile-icon">🗺️</span>
       <div class="home-tile-name">Ramani</div>
       <div class="home-tile-sub">Njia ya Kanisa</div>
@@ -660,11 +654,6 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     <div><div class="ch-name">YouTube — Shalom Tabernacle Broadcast</div><div class="ch-desc">Ibada zote za live na zilizopita</div></div>
     <div class="ch-arrow">›</div>
   </div>
-  <div class="ch-card" onclick="window.open('https://chat.whatsapp.com/BSn2AlKazzQ76gCM0K0oZO?mode=gi_t','_blank')">
-    <div class="ch-icon" style="background:linear-gradient(135deg,#25D366,#128C7E);">📱</div>
-    <div><div class="ch-name">WhatsApp — Shalom Church</div><div class="ch-desc">Matangazo na viungo vya ibada</div></div>
-    <div class="ch-arrow">›</div>
-  </div>
   <div class="sub-box">
     <div style="font-family:'Cinzel',serif;font-size:12px;font-weight:700;color:var(--light);margin-bottom:3px;">🔔 Usikose Ibada!</div>
     <div style="font-size:12.5px;color:rgba(245,240,232,.55);line-height:1.6;margin-bottom:9px;">Bonyeza Subscribe na uanzishe arifa.</div>
@@ -680,7 +669,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   <div class="dynamic-sermons"></div>
   <div class="card">
     <div class="tag">🗓 Juma Tano — 3 Mei 2024</div>
-    <div class="card-title">Nguvu ya Imani</div>
+    <div class="card-title">Mafundisho</div>
     <div class="card-meta">Mhubiri: <span class="preacher">Mch. J. Pill</span> • 58 dk</div>
     <button class="play-btn">▶ Sikiliza</button>
   </div>
@@ -922,20 +911,20 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
       <span style="font-size:20px;">📱</span> Jiunge na Group la Vijana
     </a>
   </div>
-  <div class="youth-section-title">🎬 Vijana Night — Video</div>
+  <div class="youth-section-title">🎬 Video</div>
   <div class="youth-div"></div>
   <div id="youth-videos-list" class="media-empty">Hakuna video za vijana bado. Ingia Admin uongeze! ⚙️</div>
-  <button class="upload-youth-btn" onclick="goTab('admin',11);setTimeout(()=>document.getElementById('admin-pin').focus(),400)">⬆️ Pakia Video ya Vijana (Admin)</button>
+  <button class="upload-youth-btn" onclick="goTab('admin',10);setTimeout(()=>document.getElementById('admin-pin').focus(),400)">⬆️ Pakia Video ya Vijana (Admin)</button>
   <div class="sec-title" style="font-size:14px;margin-bottom:5px;margin-top:4px;">📺 Ibada Zote</div>
   <div class="sec-div"></div>
   <div id="main-videos-list"></div>
   <div class="video-card" onclick="window.open('https://www.youtube.com/@shalomtabernaclebroadcast','_blank')">
     <div class="video-thumb"><div class="vid-bg-icon">⛪</div><div class="vid-play">▶</div></div>
-    <div class="video-info"><div class="video-title">Ibada ya Juma Tano — Nguvu ya Imani</div><div class="video-meta">3 Mei 2024 • 2:15:00</div></div>
+    <div class="video-info"><div class="video-title">Ibada ya Juma Tano — Mafundisho</div><div class="video-meta">3 Mei 2024 • 2:15:00</div></div>
   </div>
   <div class="video-card" onclick="window.open('https://www.youtube.com/@shalomtabernaclebroadcast','_blank')">
     <div class="video-thumb"><div class="vid-bg-icon">🙏</div><div class="vid-play">▶</div></div>
-    <div class="video-info"><div class="video-title">Ibada ya Ijumaa — Nguvu ya Sala</div><div class="video-meta">4 Mei 2024 • 1:45:00</div></div>
+    <div class="video-info"><div class="video-title">Ibada ya Ijumaa — Maombi</div><div class="video-meta">4 Mei 2024 • 1:45:00</div></div>
   </div>
 </div>
 
@@ -953,30 +942,6 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   <div class="book-card">
     <div class="book-cover" style="background:linear-gradient(135deg,#3A1A40,#050E1A);">📘</div>
     <div><div class="book-title">Neema ya Mungu</div><div class="book-author">Mch. J. Pill</div><div class="book-desc">Neema ya Mungu inakupigana na kukupa ushindi.</div><button class="dl-btn">⬇ Pakua PDF</button></div>
-  </div>
-</div>
-
-<!-- ANNOUNCE -->
-<div id="tab-announce" class="tab-panel">
-  <div class="sec-title">📢 Matangazo</div><div class="sec-div"></div>
-  <div id="dynamic-announce"></div>
-  <div class="ann-card ann-urgent">
-    <span class="ann-badge badge-urgent">🔔 MUHIMU</span>
-    <div class="ann-title">Mkutano wa Maombi — Leo Usiku</div>
-    <div class="ann-body">Tunakuomba uje kwenye mkutano maalum wa maombi leo usiku saa 1 hadi saa 3 usiku.</div>
-    <div class="ann-date">📅 8 Mei 2024</div>
-  </div>
-  <div class="ann-card">
-    <span class="ann-badge badge-event">📅 TUKIO</span>
-    <div class="ann-title">Ibada ya Siku Kuu — Pentekoste</div>
-    <div class="ann-body">Tunaadhimisha Pentekoste Jumapili ijayo. Kuna ushauri maalum, ibada ndefu, na chakula cha pamoja.</div>
-    <div class="ann-date">📅 10 Mei 2024</div>
-  </div>
-  <div class="ann-card">
-    <span class="ann-badge badge-info">ℹ️ HABARI</span>
-    <div class="ann-title">Darasa la Biblia — Jumamosi</div>
-    <div class="ann-body">Darasa la kujifunza Neno la Mungu linaendelea kila Jumamosi saa 3 asubuhi.</div>
-    <div class="ann-date">📅 11 Mei 2024</div>
   </div>
 </div>
 
@@ -1091,8 +1056,8 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
       <button class="admin-tab-btn active" onclick="switchAdminTab('mahubiri',this)">🎙️ Mahubiri</button>
       <button class="admin-tab-btn" onclick="switchAdminTab('videos',this)">🎬 Video</button>
       <button class="admin-tab-btn" onclick="switchAdminTab('youth',this)">🔥 Vijana</button>
-      <button class="admin-tab-btn" onclick="switchAdminTab('announce',this)">📢 Tangazo</button>
       <button class="admin-tab-btn" onclick="switchAdminTab('picha',this)">🖼️ Picha</button>
+      <button class="admin-tab-btn" onclick="switchAdminTab('qna',this)">💬 Maswali</button>
     </div>
 
     <div id="atab-mahubiri" class="admin-tab-content active">
@@ -1149,22 +1114,6 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
       </div>
     </div>
 
-    <div id="atab-announce" class="admin-tab-content">
-      <div class="admin-section">
-        <div class="admin-section-title">📢 Ongeza Tangazo</div>
-        <select class="admin-select" id="ann-type"><option value="event">📅 Tukio</option><option value="urgent">🔔 Muhimu</option><option value="info">ℹ️ Habari</option></select>
-        <input class="admin-input" id="ann-title" placeholder="Kichwa cha Tangazo..."/>
-        <textarea class="admin-input" id="ann-body" placeholder="Maelezo ya tangazo..." style="height:80px;resize:none;"></textarea>
-        <input class="admin-input" id="ann-date" placeholder="Tarehe..."/>
-        <button class="admin-btn admin-btn-save" onclick="saveAnnouncement()">💾 Hifadhi Tangazo</button>
-        <div class="admin-success" id="ann-success">✅ Tangazo limehifadhiwa!</div>
-      </div>
-      <div class="admin-section">
-        <div class="admin-section-title">📋 Matangazo Yaliyopo</div>
-        <div id="announce-admin-list"></div>
-      </div>
-    </div>
-
     <div id="atab-picha" class="admin-tab-content">
       <div class="admin-section">
         <div class="admin-section-title">🖼️ Pakia Picha</div>
@@ -1181,6 +1130,65 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
         <div class="photo-grid" id="photo-admin-grid"></div>
       </div>
     </div>
+
+    <div id="atab-qna" class="admin-tab-content">
+      <div class="admin-section">
+        <div class="admin-section-title">🖥️ Projector (Fungua kwenye PC ulioungana na projector)</div>
+        <button class="admin-btn admin-btn-save" onclick="openProjectorWindow()">🖥️ Fungua Onyesho la Projector</button>
+        <div style="font-size:11.5px;color:rgba(245,240,232,.5);margin-top:8px;line-height:1.6;">Fungua hii kwenye dirisha jipya kwenye PC yako, kisha uisogeze/ipanue kwenye projector (skrini ya pili). Kisha tumia orodha chini kuchagua nini kionekane.</div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+          <button class="admin-btn" style="background:linear-gradient(135deg,#2E86DE,#1B4F91);" onclick="showJitsiOnProjector()">🎥 Onyesha Video Live</button>
+          <button class="admin-btn" style="background:rgba(201,168,76,.15);color:var(--gold);" onclick="clearProjector()">🧹 Futa Onyesho</button>
+        </div>
+      </div>
+      <div class="admin-section">
+        <div class="admin-section-title">💬 Maswali/Majibu Yanayoingia</div>
+        <div style="font-size:11.5px;color:rgba(245,240,232,.45);font-style:italic;margin-bottom:10px;">Yanaonekana hapa moja kwa moja watu wanapotuma. Bonyeza "Onyesha" kukionyesha kwenye projector.</div>
+        <button class="admin-btn" style="background:rgba(232,68,68,.15);color:#FF8080;margin-bottom:10px;" onclick="clearAllQna()">🧹 Futa Maswali Yote (Baada ya Kikao)</button>
+        <div id="qna-admin-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JITSI VIDEO CALL -->
+<div id="tab-jitsi" class="tab-panel">
+  <div class="sec-title">🎥 Video Call</div>
+  <div class="section-sub">Live ya Ibada na Mikutano ya Video</div>
+  <div class="sec-div"></div>
+
+  <div class="card">
+    <div class="tag">🙋 ULIZA / JIBU</div>
+    <div class="card-title">Tuma Swali au Jibu Lako</div>
+    <div class="card-meta" style="margin-bottom:10px;">Kwa mafundisho ya kati ya wiki — swali/jibu lako litaonekana kwenye projector.</div>
+    <input class="admin-input" id="qna-name" placeholder="Jina lako (hiari)" style="margin-bottom:8px;"/>
+    <textarea class="admin-input" id="qna-text" placeholder="Andika swali au jibu lako hapa..." style="height:80px;resize:none;margin-bottom:8px;"></textarea>
+    <button class="play-btn" onclick="submitQna()">📨 Tuma</button>
+    <div class="admin-success" id="qna-success">✅ Umetuma! Kiongozi ataliona.</div>
+  </div>
+
+  <div class="card">
+    <div class="tag">📡 LIVE YA IBADA</div>
+    <div class="card-title">Sambaza au Tazama Ibada Moja kwa Moja</div>
+    <div class="card-meta" style="margin-bottom:10px;">Mchungaji/kiongozi anasambaza, washirika wanatazama.</div>
+    <button class="play-btn" onclick="openJitsiLiveHost()">🎙️ Anza Live (Kiongozi)</button>
+    <button class="play-btn" style="background:linear-gradient(135deg,#2E86DE,#1B4F91);margin-left:8px;" onclick="openJitsiLiveViewer()">👁 Tazama Live</button>
+  </div>
+
+  <div class="card">
+    <div class="tag">👥 MKUTANO WA VIDEO</div>
+    <div class="card-title">Ingia au Anzisha Mkutano</div>
+    <div class="card-meta" style="margin-bottom:10px;">Kila mtu anaweza kuwasha kamera na mic — kwa vikundi, mafunzo, au vikao vya uongozi.</div>
+    <input class="admin-input" id="jitsi-room-name" placeholder="Jina la Mkutano (mfano: kikundi1)" style="margin-bottom:10px;"/>
+    <button class="play-btn" onclick="openJitsiMeeting()">🎥 Ingia Mkutanoni</button>
+  </div>
+
+  <div id="jitsi-call-wrap" style="display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:10px 0;">
+      <div class="card-title" id="jitsi-call-label">Video Call</div>
+      <button class="back-btn" onclick="closeJitsiCall()">✕ Funga</button>
+    </div>
+    <div id="jitsi-container" style="width:100%;height:480px;border-radius:12px;overflow:hidden;border:1px solid rgba(201,168,76,.25);"></div>
   </div>
 </div>
 
@@ -1531,7 +1539,7 @@ const MEDIA_ICONS = {'special':'🎤','audio-preach':'🎙️','video-preach':'�
 const MEDIA_COLORS = {'special':'rgba(201,168,76,.15)','audio-preach':'rgba(100,150,232,.15)','video-preach':'rgba(232,68,68,.15)','sifa':'rgba(80,200,80,.15)'};
 
 // ---- IN-MEMORY STORE ----
-const MEM = {sermons:[],videos:[],youth_videos:[],announcements:[],photos:[],song_audio:{},media:{'special':[],'audio-preach':[],'video-preach':[],'sifa':[]}};
+const MEM = {sermons:[],videos:[],youth_videos:[],photos:[],song_audio:{},media:{'special':[],'audio-preach':[],'video-preach':[],'sifa':[]}};
 function memSave(k,v){ MEM[k]=v; try{localStorage.setItem('stc_'+k,JSON.stringify(v));}catch(e){} }
 function memLoad(k){ try{const v=localStorage.getItem('stc_'+k); if(v)MEM[k]=JSON.parse(v);}catch(e){} return MEM[k]; }
 
@@ -1718,6 +1726,7 @@ function checkPin(){
     document.getElementById('admin-panel-content').classList.add('open');
     document.getElementById('pin-error').style.display='none';
     loadAdminData();
+    listenQnaSubmissions();
   }else{document.getElementById('pin-error').style.display='block';document.getElementById('admin-pin').value='';}
 }
 function adminLogout(){
@@ -1799,29 +1808,6 @@ function renderYouthVideos(){
     return `<div class="youth-video-card" onclick="window.open('${v.yt}','_blank')">
       <div class="youth-video-thumb"><img src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;" onerror="this.style.display='none'"/><div class="youth-vid-play">▶</div></div>
       <div class="youth-video-info"><div class="youth-video-title">${v.title}</div><div class="youth-video-meta">${v.date} • Vijana Night</div></div></div>`;
-  }).join('');
-}
-
-// ANNOUNCEMENTS
-function saveAnnouncement(){
-  const title=document.getElementById('ann-title').value.trim(); if(!title){alert('Weka kichwa!');return;}
-  const a={id:Date.now(),type:document.getElementById('ann-type').value,title,body:document.getElementById('ann-body').value.trim(),date:document.getElementById('ann-date').value.trim()};
-  const list=memLoad('announcements')||[]; list.unshift(a); memSave('announcements',list);
-  ['ann-title','ann-body','ann-date'].forEach(id=>document.getElementById(id).value='');
-  showSuccess('ann-success'); loadAdminData(); renderAnnouncements();
-}
-function deleteAnnouncement(id){let l=memLoad('announcements')||[];l=l.filter(a=>a.id!==id);memSave('announcements',l);loadAdminData();renderAnnouncements();}
-function renderAnnouncements(){
-  const list=memLoad('announcements')||[];
-  const c=document.getElementById('dynamic-announce'); if(!c)return;
-  c.innerHTML=list.map(a=>{
-    const bc=a.type==='urgent'?'badge-urgent':a.type==='event'?'badge-event':'badge-info';
-    const ic=a.type==='urgent'?'🔔 MUHIMU':a.type==='event'?'📅 TUKIO':'ℹ️ HABARI';
-    return `<div class="ann-card ${a.type==='urgent'?'ann-urgent':''}">
-      <span class="ann-badge ${bc}">${ic}</span>
-      <div class="ann-title">${a.title}</div>
-      <div class="ann-body">${a.body}</div>
-      <div class="ann-date">📅 ${a.date}</div></div>`;
   }).join('');
 }
 
@@ -1934,9 +1920,6 @@ function loadAdminData(){
   const yvideos=memLoad('youth_videos')||[];
   const yvl=document.getElementById('youth-videos-admin-list');
   if(yvl)yvl.innerHTML=yvideos.length?yvideos.map(v=>`<div class="admin-item"><div class="admin-item-info"><div class="admin-item-title">${v.title}</div><div class="admin-item-sub">${v.date}</div></div><button class="admin-btn admin-btn-del" onclick="deleteYouthVideo(${v.id})">🗑</button></div>`).join(''):'<div style="font-size:12px;color:rgba(245,240,232,.3);text-align:center;padding:10px;">Hakuna video za vijana bado</div>';
-  const anns=memLoad('announcements')||[];
-  const al=document.getElementById('announce-admin-list');
-  if(al)al.innerHTML=anns.length?anns.map(a=>`<div class="admin-item"><div class="admin-item-info"><div class="admin-item-title">${a.title}</div><div class="admin-item-sub">${a.date}</div></div><button class="admin-btn admin-btn-del" onclick="deleteAnnouncement(${a.id})">🗑</button></div>`).join(''):'<div style="font-size:12px;color:rgba(245,240,232,.3);text-align:center;padding:10px;">Hakuna matangazo bado</div>';
   const photos=memLoad('photos')||[];
   const pg=document.getElementById('photo-admin-grid');
   if(pg)pg.innerHTML=photos.map(p=>`<div class="photo-thumb"><img src="${p.src}" alt="${p.caption||'Picha'}"/><button class="photo-thumb-del" onclick="deletePhoto(${p.id})">✕</button></div>`).join('');
@@ -1954,7 +1937,6 @@ function initApp(){
   renderDynamicSermons();
   renderDynamicVideos();
   renderYouthVideos();
-  renderAnnouncements();
   renderAllMedia();
   renderAudioHymns();
 }
@@ -2265,6 +2247,201 @@ window.addEventListener('popstate', () => {
       <button class="fs-nav-btn" onclick="fsNavigate(1)">Inayofuata →</button>
     </div>
   </div>
+</div>
+
+<script src="https://meet.jit.si/external_api.js"></script>
+<script>
+// ---- JITSI VIDEO CALL ----
+let jitsiApi = null;
+const JITSI_LIVE_ROOM = 'ShalomTabernacle-IbadaLive'; // jina moja la kudumu kwa live
+
+function startJitsiRoom(roomName, label, opts){
+  if(jitsiApi){ jitsiApi.dispose(); jitsiApi = null; }
+  document.getElementById('jitsi-call-wrap').style.display = 'block';
+  document.getElementById('jitsi-call-label').textContent = label;
+  document.getElementById('jitsi-container').innerHTML = '';
+  document.getElementById('jitsi-call-wrap').scrollIntoView({behavior:'smooth'});
+
+  jitsiApi = new JitsiMeetExternalAPI('meet.jit.si', {
+    roomName: roomName,
+    width: '100%',
+    height: 480,
+    parentNode: document.getElementById('jitsi-container'),
+    configOverwrite: {
+      prejoinPageEnabled: false,
+      startWithAudioMuted: !!opts.startMuted,
+      startWithVideoMuted: !!opts.startMuted
+    },
+    interfaceConfigOverwrite: { MOBILE_APP_PROMO: false },
+    userInfo: { displayName: opts.displayName || 'Mshiriki' }
+  });
+}
+
+function openJitsiLiveHost(){
+  const pin = prompt('Weka neno la siri la Admin kuanza Live:');
+  if(pin !== PIN){ if(pin!==null) alert('❌ Neno la siri si sahihi!'); return; }
+  startJitsiRoom(JITSI_LIVE_ROOM, '📡 Live — Kiongozi', {startMuted:false, displayName:'Mch. J. Pill'});
+}
+
+function openJitsiLiveViewer(){
+  startJitsiRoom(JITSI_LIVE_ROOM, '👁 Unatazama Live', {startMuted:true, displayName:'Mtazamaji'});
+}
+
+function openJitsiMeeting(){
+  const raw = document.getElementById('jitsi-room-name').value.trim();
+  if(!raw){ alert('Weka jina la mkutano kwanza.'); return; }
+  const roomName = 'ShalomTabernacle-' + raw.replace(/[^a-zA-Z0-9-_]/g,'');
+  startJitsiRoom(roomName, '👥 Mkutano: ' + raw, {startMuted:false, displayName:'Mshiriki'});
+}
+
+function closeJitsiCall(){
+  if(jitsiApi){ jitsiApi.dispose(); jitsiApi = null; }
+  document.getElementById('jitsi-call-wrap').style.display = 'none';
+}
+</script>
+
+<script>
+// ---- MASWALI (Q&A) — Firebase Realtime Database (REST, hakuna SDK inahitajika) ----
+const FB_BASE = 'https://shalom-tabernacle-church-default-rtdb.europe-west1.firebasedatabase.app';
+
+function submitQna(){
+  const name = document.getElementById('qna-name').value.trim() || 'Bila jina';
+  const text = document.getElementById('qna-text').value.trim();
+  if(!text){ alert('Andika swali au jibu kwanza.'); return; }
+  fetch(FB_BASE + '/qna/submissions.json', {
+    method:'POST',
+    body: JSON.stringify({ name, text, ts: Date.now() })
+  }).then(()=>{
+    document.getElementById('qna-name').value='';
+    document.getElementById('qna-text').value='';
+    const s=document.getElementById('qna-success');
+    s.style.display='block'; setTimeout(()=>s.style.display='none',2500);
+  }).catch(()=>alert('Imeshindwa kutuma. Angalia mtandao wako.'));
+}
+
+// Admin: sikiliza maswali yanayoingia moja kwa moja (EventSource / SSE ya Firebase)
+let qnaEventSource = null;
+let QNA_SUBMISSIONS = {};
+function listenQnaSubmissions(){
+  if(qnaEventSource) return; // tayari inasikiliza
+  qnaEventSource = new EventSource(FB_BASE + '/qna/submissions.json');
+  qnaEventSource.addEventListener('put', e=>{
+    const d = JSON.parse(e.data);
+    if(d.path === '/'){ QNA_SUBMISSIONS = d.data || {}; }
+    else { const key = d.path.replace('/',''); if(d.data===null){ delete QNA_SUBMISSIONS[key]; } else { QNA_SUBMISSIONS[key] = d.data; } }
+    renderQnaAdminList();
+  });
+  qnaEventSource.addEventListener('patch', e=>{
+    const d = JSON.parse(e.data);
+    Object.assign(QNA_SUBMISSIONS, d.data);
+    renderQnaAdminList();
+  });
+}
+function renderQnaAdminList(){
+  const el = document.getElementById('qna-admin-list');
+  if(!el) return;
+  const items = Object.entries(QNA_SUBMISSIONS||{}).sort((a,b)=>(b[1].ts||0)-(a[1].ts||0));
+  if(items.length===0){ el.innerHTML = '<div style="font-size:12px;color:rgba(245,240,232,.4);font-style:italic;">Hakuna swali bado...</div>'; return; }
+  el.innerHTML = items.map(([id,q])=>`
+    <div class="hymn-item" style="cursor:default;">
+      <div style="flex:1;">
+        <div class="hymn-name">${escapeHtml(q.name||'Bila jina')}</div>
+        <div class="hymn-cat">${escapeHtml(q.text||'')}</div>
+      </div>
+      <button class="admin-btn admin-btn-save" style="padding:6px 10px;font-size:9px;margin-right:6px;" onclick="showOnProjector('${id}')">📽️ Onyesha</button>
+      <button class="admin-btn" style="padding:6px 10px;font-size:9px;background:rgba(232,68,68,.15);color:#FF8080;" onclick="deleteQna('${id}')">🗑</button>
+    </div>`).join('');
+}
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function deleteQna(id){
+  fetch(FB_BASE + '/qna/submissions/'+id+'.json', {method:'DELETE'});
+}
+function clearAllQna(){
+  if(!confirm('Futa maswali/majibu yote ya kikao hiki? Hatua hii haiwezi kurudishwa.')) return;
+  fetch(FB_BASE + '/qna/submissions.json', {method:'DELETE'});
+  clearProjector();
+}
+
+// Admin: dhibiti kinachoonekana kwenye projector
+function showOnProjector(id){
+  const q = QNA_SUBMISSIONS[id];
+  if(!q) return;
+  fetch(FB_BASE + '/qna/current.json', {
+    method:'PUT',
+    body: JSON.stringify({ type:'text', name:q.name||'', text:q.text||'', ts:Date.now() })
+  });
+}
+function showJitsiOnProjector(){
+  fetch(FB_BASE + '/qna/current.json', {
+    method:'PUT',
+    body: JSON.stringify({ type:'jitsi', room:JITSI_LIVE_ROOM, ts:Date.now() })
+  });
+}
+function clearProjector(){
+  fetch(FB_BASE + '/qna/current.json', {
+    method:'PUT',
+    body: JSON.stringify({ type:'idle', ts:Date.now() })
+  });
+}
+function openProjectorWindow(){
+  window.open(location.pathname + '?projector=1', 'ShalomProjector');
+}
+
+// Projector: onyesha kile kinachotumwa na admin
+let projectorApi = null;
+function initProjectorView(){
+  document.getElementById('projector-view').classList.add('open');
+  ['app-header','main-nav','content','media-player-bar'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.style.display='none';
+  });
+  const es = new EventSource(FB_BASE + '/qna/current.json');
+  const render = (data)=>{
+    if(!data || data.type==='idle'){
+      document.getElementById('proj-name').textContent = '';
+      document.getElementById('proj-text').style.display='block';
+      document.getElementById('proj-text').textContent = 'Karibu — Mafundisho ya Kati ya Wiki';
+      document.getElementById('projector-jitsi').style.display='none';
+      if(projectorApi){ projectorApi.dispose(); projectorApi=null; }
+    } else if(data.type==='text'){
+      document.getElementById('projector-jitsi').style.display='none';
+      if(projectorApi){ projectorApi.dispose(); projectorApi=null; }
+      document.getElementById('proj-name').textContent = data.name||'';
+      document.getElementById('proj-text').style.display='block';
+      document.getElementById('proj-text').textContent = data.text||'';
+    } else if(data.type==='jitsi'){
+      document.getElementById('proj-name').textContent='';
+      document.getElementById('proj-text').style.display='none';
+      const jc = document.getElementById('projector-jitsi');
+      jc.style.display='block';
+      if(!projectorApi){
+        jc.innerHTML='';
+        projectorApi = new JitsiMeetExternalAPI('meet.jit.si', {
+          roomName: data.room || JITSI_LIVE_ROOM,
+          width:'100%', height:'100%', parentNode: jc,
+          configOverwrite:{ prejoinPageEnabled:false, startWithAudioMuted:true },
+          interfaceConfigOverwrite:{ MOBILE_APP_PROMO:false },
+          userInfo:{ displayName:'Projector' }
+        });
+      }
+    }
+  };
+  es.addEventListener('put', e=>{ const d=JSON.parse(e.data); render(d.path==='/'? d.data : d.data); });
+}
+
+// Anzisha mfumo sahihi kulingana na dirisha lililofunguliwa
+(function(){
+  const params = new URLSearchParams(location.search);
+  if(params.get('projector')==='1'){
+    window.addEventListener('load', initProjectorView);
+  }
+})();
+</script>
+<!-- PROJECTOR DISPLAY (fungua kwa ?projector=1) -->
+<div id="projector-view">
+  <div class="proj-logo">✝ SHALOM TABERNACLE ✝</div>
+  <div class="proj-name" id="proj-name"></div>
+  <div class="proj-text" id="proj-text">Karibu — Mafundisho ya Kati ya Wiki</div>
+  <div id="projector-jitsi"></div>
 </div>
 
 </body>
