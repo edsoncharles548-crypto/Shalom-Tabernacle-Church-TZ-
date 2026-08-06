@@ -2665,21 +2665,68 @@ function saveHymn(){
   if(lyrics.length===0){ alert('Jaza maneno ya angalau kipande kimoja.'); return; }
 
   const hymn = {num, name, cat, repeatChorus: document.getElementById('hy-repeat-chorus').checked, lyrics};
-  fetch(FB_BASE + '/hymns_custom/'+num+'.json', {
+  saveHymnToFirebase(hymn, true);
+}
+function saveHymnToFirebase(hymn, isNewSubmit){
+  return fetch(FB_BASE + '/hymns_custom/'+hymn.num+'.json', {
     method:'PUT',
     body: JSON.stringify(hymn)
   }).then(()=>{
-    const existingIdx = HYMNS.findIndex(h=>h.num===num);
+    const existingIdx = HYMNS.findIndex(h=>h.num===hymn.num);
     if(existingIdx>=0) HYMNS[existingIdx]=hymn; else HYMNS.push(hymn);
     HYMNS.sort((a,b)=>a.num-b.num);
+    CUSTOM_HYMN_NUMS.add(hymn.num);
     renderHymns(HYMNS); renderHymnCatChips();
     renderHymnAdminList();
-    document.getElementById('hy-num').value='';
-    document.getElementById('hy-name').value='';
-    document.getElementById('hy-cat').value='';
-    document.getElementById('hy-blocks').innerHTML='';
-    showSuccess('hy-success');
-  }).catch(()=>alert('Imeshindwa kuhifadhi. Angalia mtandao wako.'));
+    removePendingHymn(hymn.num);
+    if(isNewSubmit){
+      document.getElementById('hy-num').value='';
+      document.getElementById('hy-name').value='';
+      document.getElementById('hy-cat').value='';
+      document.getElementById('hy-blocks').innerHTML='';
+      showSuccess('hy-success');
+    }
+    return true;
+  }).catch(()=>{
+    // Mtandao mbovu — usipoteze kazi: hifadhi kwenye simu, ionekane papo hapo, jaribu tena baadaye
+    queuePendingHymn(hymn);
+    const existingIdx = HYMNS.findIndex(h=>h.num===hymn.num);
+    if(existingIdx>=0) HYMNS[existingIdx]=hymn; else HYMNS.push(hymn);
+    HYMNS.sort((a,b)=>a.num-b.num);
+    CUSTOM_HYMN_NUMS.add(hymn.num);
+    renderHymns(HYMNS); renderHymnCatChips();
+    renderHymnAdminList();
+    if(isNewSubmit){
+      document.getElementById('hy-num').value='';
+      document.getElementById('hy-name').value='';
+      document.getElementById('hy-cat').value='';
+      document.getElementById('hy-blocks').innerHTML='';
+    }
+    alert('⚠️ Mtandao ni dhaifu sasa hivi. Wimbo umehifadhiwa kwenye simu yako na unaonekana tayari — utatumwa mtandaoni (kwa wengine wote) kiotomatiki mara mtandao utakapoimarika.');
+    return false;
+  });
+}
+function queuePendingHymn(hymn){
+  let pending = {};
+  try{ pending = JSON.parse(localStorage.getItem('pending_sync_hymns')||'{}'); }catch(e){}
+  pending[hymn.num] = hymn;
+  localStorage.setItem('pending_sync_hymns', JSON.stringify(pending));
+}
+function removePendingHymn(num){
+  let pending = {};
+  try{ pending = JSON.parse(localStorage.getItem('pending_sync_hymns')||'{}'); }catch(e){}
+  delete pending[num];
+  localStorage.setItem('pending_sync_hymns', JSON.stringify(pending));
+}
+function trySyncPendingHymns(){
+  let pending = {};
+  try{ pending = JSON.parse(localStorage.getItem('pending_sync_hymns')||'{}'); }catch(e){}
+  const nums = Object.keys(pending);
+  if(nums.length===0) return;
+  nums.forEach(num=>saveHymnToFirebase(pending[num], false));
+}
+setInterval(trySyncPendingHymns, 20000); // jaribu kutuma tena kila sekunde 20 kama mtandao umerudi
+window.addEventListener('online', trySyncPendingHymns);
 }
 let CUSTOM_HYMN_NUMS = new Set();
 function loadCustomHymns(){
