@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shalom-tabernacle-v3';
+const CACHE_NAME = 'shalom-tabernacle-v4';
 const ASSETS = [
   './',
   './index.html',
@@ -37,7 +37,7 @@ self.addEventListener('fetch', e => {
 
   if (isPage) {
     e.respondWith(
-      fetch(e.request)
+      fetch(e.request, { cache: 'no-store' })
         .then(response => {
           const clone = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
