@@ -483,7 +483,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 #projector-view.open{display:flex;}
 .proj-logo{font-family:'Cinzel Decorative',serif;font-size:28px;color:var(--gold);letter-spacing:2px;margin-bottom:40px;opacity:.85;}
 .proj-name{font-family:'Cinzel',serif;font-size:22px;color:var(--gold2);margin-bottom:24px;letter-spacing:1px;}
-.proj-text{font-family:'EB Garamond',serif;font-size:48px;line-height:1.5;color:var(--light);max-width:1100px;}
+.proj-text{font-family:'EB Garamond',serif;font-size:48px;line-height:1.5;color:var(--light);max-width:1100px;white-space:pre-line;}
 #projector-jitsi{width:90vw;height:85vh;border-radius:16px;overflow:hidden;display:none;}
 
 .fs-header{
@@ -567,6 +567,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   <button class="nav-btn" onclick="showTab('map',this)"><span class="nav-icon">🗺️</span>Ramani</button>
   <button class="nav-btn" onclick="showTab('admin',this)"><span class="nav-icon">⚙️</span>Admin</button>
   <button class="nav-btn" onclick="showTab('jitsi',this)"><span class="nav-icon">🎥</span>Video Call</button>
+  <button class="nav-btn" onclick="showTab('biblia',this)"><span class="nav-icon">📕</span>Biblia</button>
 </nav>
 
 <div id="content">
@@ -717,12 +718,26 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     <div class="section-sub">Revival Song Book — Nyimbo 38</div>
     <div class="sec-div"></div>
     <input class="hymn-search" type="text" placeholder="🔍 Tafuta wimbo..." oninput="filterHymns(this.value)"/>
+    <div id="hymn-cat-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;"></div>
     <div id="hymn-list"></div>
   </div>
   <div id="hymn-detail-view" class="hymn-detail">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
     <button class="back-btn" style="margin-bottom:0;" onclick="closeHymn()">← Rudi</button>
     <button class="fullscreen-btn" onclick="openFullscreen()">⛶ Soma Ukurasa Mzima</button>
+    <button class="fullscreen-btn" id="proj-start-btn" style="background:linear-gradient(135deg,#2E86DE,#1B4F91);" onclick="startSongProjection()">🖥️ Project kwenye Projector</button>
+  </div>
+  <div id="proj-control-bar" style="display:none;background:linear-gradient(135deg,rgba(46,134,222,.14),rgba(15,30,56,.9));border:1px solid rgba(46,134,222,.35);border-radius:12px;padding:12px 14px;margin-bottom:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <div style="font-family:'Cinzel',serif;font-size:11px;color:#7EB6F5;letter-spacing:1px;">🖥️ INAONYESHWA KWENYE PROJECTOR</div>
+      <button class="back-btn" style="margin-bottom:0;padding:4px 10px;font-size:10px;" onclick="stopSongProjection()">✕ Maliza</button>
+    </div>
+    <div style="font-size:13px;color:rgba(245,240,232,.75);background:rgba(0,0,0,.25);border-radius:8px;padding:10px;margin-bottom:10px;white-space:pre-line;" id="proj-current-preview"></div>
+    <div style="display:flex;gap:8px;align-items:center;justify-content:center;">
+      <button class="font-ctrl-btn" onclick="projSongStep(-1)">◀ Nyuma</button>
+      <div style="font-family:'Cinzel',serif;font-size:11px;color:var(--gold);min-width:50px;text-align:center;" id="proj-slide-count">1/1</div>
+      <button class="font-ctrl-btn" onclick="projSongStep(1)">Mbele ▶</button>
+    </div>
   </div>
     <div class="hymn-settings-bar">
       <div class="hymn-settings-title">⚙️ Mipangilio ya Kusoma
@@ -1058,6 +1073,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
       <button class="admin-tab-btn" onclick="switchAdminTab('youth',this)">🔥 Vijana</button>
       <button class="admin-tab-btn" onclick="switchAdminTab('picha',this)">🖼️ Picha</button>
       <button class="admin-tab-btn" onclick="switchAdminTab('qna',this)">💬 Maswali</button>
+      <button class="admin-tab-btn" onclick="switchAdminTab('nyimbo',this)">🎵 Nyimbo</button>
     </div>
 
     <div id="atab-mahubiri" class="admin-tab-content active">
@@ -1148,6 +1164,32 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
         <div id="qna-admin-list"></div>
       </div>
     </div>
+
+    <div id="atab-nyimbo" class="admin-tab-content">
+      <div class="admin-section">
+        <div class="admin-section-title">🎵 Ongeza Wimbo Kitabuni</div>
+        <div style="font-size:11.5px;color:rgba(245,240,232,.5);margin-bottom:10px;line-height:1.6;">Ongeza vipande (Ubeti/Kiitikio) kwa mpangilio unaotaka wimbo uimbwe — mfano: Kiitikio, Ubeti 1, Kiitikio, Ubeti 2... Mpangilio huu huu ndio utakaotumika wakati wa kuproject kwenye projector.</div>
+        <input class="admin-input" id="hy-num" type="number" placeholder="Namba ya wimbo"/>
+        <input class="admin-input" id="hy-name" placeholder="Jina la wimbo..."/>
+        <input class="admin-input" id="hy-cat" placeholder="Kundi (mfano: Imani, Shukrani)..."/>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:rgba(245,240,232,.75);margin-bottom:12px;cursor:pointer;">
+          <input type="checkbox" id="hy-repeat-chorus" checked style="width:16px;height:16px;accent-color:var(--gold);"/>
+          🔁 Kiitikio kirudie baada ya kila ubeti (huhitaji kukiweka wewe mwenyewe kati ya kila ubeti)
+        </label>
+        <div id="hy-blocks"></div>
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <button class="admin-btn" style="background:rgba(201,168,76,.15);color:var(--gold);flex:1;" onclick="addHymnBlock('verse')">➕ Ongeza Ubeti</button>
+          <button class="admin-btn" style="background:rgba(46,134,222,.18);color:#7EB6F5;flex:1;" onclick="addHymnBlock('chorus')">➕ Ongeza Kiitikio</button>
+        </div>
+        <button class="admin-btn admin-btn-save" onclick="saveHymn()">💾 Hifadhi Wimbo</button>
+        <div class="admin-success" id="hy-success">✅ Wimbo umehifadhiwa!</div>
+      </div>
+      <div class="admin-section">
+        <div class="admin-section-title">📋 Nyimbo Zilizopo Kwenye Mfumo (Zinazoweza Kuhaririwa)</div>
+        <button class="admin-btn" style="background:rgba(46,134,222,.18);color:#7EB6F5;margin-bottom:12px;" onclick="migrateAllHymnsToSystem()">🔄 Hamisha Nyimbo Zote Kwenye Mfumo</button>
+        <div id="hymn-admin-list"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1192,6 +1234,36 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   </div>
 </div>
 
+<!-- BIBLIA -->
+<div id="tab-biblia" class="tab-panel">
+  <div class="sec-title">📕 Biblia Takatifu</div>
+  <div class="section-sub" id="bib-version-label">Toleo la Kiswahili — Biblica Open (Neno)</div>
+  <div class="sec-div"></div>
+  <div style="font-size:11px;color:rgba(245,240,232,.4);font-style:italic;margin-bottom:10px;line-height:1.6;">Kumbuka: hakuna "King James" rasmi ya Kiswahili — KJV ni tafsiri ya Kiingereza pekee. Chagua toleo hapa chini.</div>
+
+  <div style="display:flex;gap:8px;margin-bottom:14px;">
+    <button class="admin-btn" id="bib-lang-sw-btn" style="flex:1;background:rgba(201,168,76,.25);color:var(--gold);" onclick="bibSetLang('sw')">🇹🇿 Kiswahili</button>
+    <button class="admin-btn" id="bib-lang-en-btn" style="flex:1;background:rgba(201,168,76,.1);color:var(--gold);" onclick="bibSetLang('en')">🇬🇧 King James (English)</button>
+  </div>
+
+  <input class="hymn-search" id="bib-quick" type="text" placeholder="⌨️ Andika mfano: Yohana 3:16, kisha bonyeza Enter..." onkeydown="if(event.key==='Enter')bibQuickJump()"/>
+
+  <div style="display:flex;gap:8px;margin-bottom:6px;">
+    <select class="admin-select" id="bib-book" onchange="bibOnBookChange()" style="flex:1;"></select>
+    <select class="admin-select" id="bib-chapter" onchange="bibLoadChapter()" style="width:90px;"></select>
+  </div>
+  <div id="bib-offline-note" style="font-size:10.5px;color:rgba(245,240,232,.35);margin-bottom:12px;"></div>
+
+  <div id="bib-reader" style="background:linear-gradient(135deg,rgba(15,30,56,.9),rgba(7,17,31,.9));border:1px solid rgba(201,168,76,.22);border-radius:12px;padding:18px;min-height:200px;">
+    <div style="text-align:center;color:rgba(245,240,232,.35);font-style:italic;padding:30px 0;">Chagua kitabu na sura, au andika rejea juu kisha Enter.</div>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-top:14px;">
+    <button class="font-ctrl-btn" style="flex:1;" onclick="bibStepChapter(-1)">◀ Sura Iliyopita</button>
+    <button class="font-ctrl-btn" style="flex:1;" onclick="bibStepChapter(1)">Sura Ifuatayo ▶</button>
+  </div>
+</div>
+
 </div><!-- /content -->
 
 <!-- FLOATING MEDIA PLAYER -->
@@ -1208,6 +1280,7 @@ const PIN = '8861';
 
 const ADMIN_PIN = PIN;
 const GROUP_PIN = PIN;
+const WORSHIP_PIN = PIN; // PIN moja tu kila mahali (8861), kama ulivyoomba.
 const SUPABASE_URL = 'https://plxmjbscgyhkahisjgzc.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_7erIyzDiTVwL8HbyN9eBYg_RLfzWbuv';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -1533,6 +1606,20 @@ const HYMNS = [
     {type:"verse",label:"Ubeti 5",lines:"Kuzaliwa kwako Yesu ni kwa ajabu sana,\nIshara ya kimbiguni nyota kukingama."},
     {type:"verse",label:"Ubeti 6",lines:"Kuzaliwa kwa ndugu Branham mmjumbe wa 7\nIshara ya kimbinguni nyota kukingama."},
   ]},
+  { num:39, name:"Jazwa Roho", cat:"—", repeatChorus:true, lyrics:[
+    {type:"verse",label:"Ubeti 1",lines:"MJUMBE ANASEMA\nNDUGU UJAZWE ROHO\nMJUMBE ANASEMA\nDADA UJAZWE ROHO\nMJUMBE ANASEMA\nSOTE TUJAZWE ROHO\nTUWE TAYARI\nSIKU YA KUNYAKULIWA"},
+    {type:"chorus",label:"Kiitikio",lines:"JAZWA ROHO\nNDUGU JAZWA ROHO\nJAZWA ROHO\nDADA JAZWA ROHO\nJAZWA ROHO\nSOTE TUJAZWE ROHO\nTUWE TAYARI\nSIKU YA KUNYAKULIWA"},
+    {type:"verse",label:"Ubeti 2",lines:"NA KAMA UJAJAZWA\nNA ROHO WA MUNGU\nCHUNGUZO MOYO WAKO\nUNA KASORO GANI\nPENGINE UNASHUKU\nUJUMBE WA WAKATI\nMWAMBIE BWANA YESU\nAKUFUNULIE"},
+    {type:"verse",label:"Ubeti 3",lines:"PENGINE NDUGU YANGU\nMVIVU KWA MAOMBI\nPENGINE DADA YANGU\nKAZI USENGENYAJI\nNA SIKU NYINGINE\nHUFIKI KANISANI\nROHO WA MUNGU NDANI\nATAJAZWA VIPI"},
+    {type:"verse",label:"Ubeti 4",lines:"PENGINE NDUGU YANGU\nHUUMPENDI MKEO\nPENGINE DADA YANGU\nHUUMTI MUMEO\nWATOTO HAWANA HESHIMA KWA WAZAZI\nROHO WA MUNGU NDANI ATAJAZWA VIPI"},
+  ]},
+  { num:40, name:"Ninatembea Naye Mwokozi", cat:"—", repeatChorus:true, lyrics:[
+    {type:"verse",label:"Ubeti 1",lines:"Ninatembea naye mwokozi\nKwa lolote lijalo mbele yangu\nKwani hapo ndipo penye kinga\nNa furaha ninapata"},
+    {type:"chorus",label:"Kiitikio",lines:"Mwokoziiiii, mimi ninakaa naye\nMwokoziiiii, BWANA\nMwokoziiiii, mimi ninakaa naye\nNinafurahi kumwona"},
+    {type:"verse",label:"Ubeti 2",lines:"NENO lake ndilo taa yangu\nPopote niendako\nLanifanya niwe kama yeye\nNiwe Bibi-Arusi NENO"},
+    {type:"verse",label:"Ubeti 3",lines:"Ahsante BWANA kwa upendo wako\nNa baraka zako tele kwangu\nNashkuru kwa yote umetenda\nJina lako litukuzwe"},
+    {type:"verse",label:"Ubeti 4",lines:"Ukamtuma na nabii branham\nIli anionyeshe njia yako\nkanitoa kwenye madhebu\nSasa naitwa Bibi- Arusi"},
+  ]},
 ];
 
 const MEDIA_ICONS = {'special':'🎤','audio-preach':'🎙️','video-preach':'📹','sifa':'🙌'};
@@ -1540,7 +1627,11 @@ const MEDIA_COLORS = {'special':'rgba(201,168,76,.15)','audio-preach':'rgba(100,
 
 // ---- IN-MEMORY STORE ----
 const MEM = {sermons:[],videos:[],youth_videos:[],photos:[],song_audio:{},media:{'special':[],'audio-preach':[],'video-preach':[],'sifa':[]}};
-function memSave(k,v){ MEM[k]=v; try{localStorage.setItem('stc_'+k,JSON.stringify(v));}catch(e){} }
+function memSave(k,v){
+  MEM[k]=v;
+  try{localStorage.setItem('stc_'+k,JSON.stringify(v));}catch(e){}
+  fetch(FB_BASE + '/church_data/'+k+'.json', {method:'PUT', body:JSON.stringify(v)}).catch(()=>{});
+}
 function memLoad(k){ try{const v=localStorage.getItem('stc_'+k); if(v)MEM[k]=JSON.parse(v);}catch(e){} return MEM[k]; }
 
 // ---- TABS ----
@@ -1550,6 +1641,13 @@ function showTab(id,btn){
   document.getElementById('tab-'+id).classList.add('active');
   if(btn)btn.classList.add('active');
   window.scrollTo(0,0);
+  if(id==='biblia'){
+    bibPopulateBooks();
+    if(!document.getElementById('bib-reader').dataset.loaded){
+      document.getElementById('bib-reader').dataset.loaded='1';
+      bibLoadChapter();
+    }
+  }
 }
 function goTab(id,navIdx){
   showTab(id, document.querySelectorAll('.nav-btn')[navIdx]);
@@ -1563,19 +1661,53 @@ function renderHymns(list){
   if(!c)return;
   if(!list||list.length===0){c.innerHTML='<div style="text-align:center;padding:20px;color:rgba(245,240,232,.3);font-style:italic;">Hakuna wimbo uliopatikana.</div>';return;}
   c.innerHTML=list.map(h=>`
-    <div class="hymn-item" onclick="openHymn(${h.num})">
-      <div class="hymn-num">${h.num}</div>
-      <div style="flex:1"><div class="hymn-name">${h.name}</div><div class="hymn-cat">${h.cat}</div></div>
-      <div class="hymn-arrow">›</div>
+    <div class="hymn-item">
+      <div class="hymn-num" onclick="openHymn(${h.num})" style="cursor:pointer;">${h.num}</div>
+      <div style="flex:1;cursor:pointer;" onclick="openHymn(${h.num})"><div class="hymn-name">${h.name}</div><div class="hymn-cat">${h.cat}</div></div>
+      <button class="admin-btn" style="padding:6px 9px;font-size:9px;background:rgba(46,134,222,.18);color:#7EB6F5;margin-right:4px;" onclick="quickProject(${h.num})">📽️</button>
+      <div class="hymn-arrow" onclick="openHymn(${h.num})" style="cursor:pointer;">›</div>
     </div>`).join('');
 }
+function renderHymnCatChips(){
+  const el = document.getElementById('hymn-cat-chips');
+  if(!el) return;
+  const cats = [...new Set(HYMNS.map(h=>h.cat).filter(c=>c && c!=='—'))].sort();
+  const chips = ['Zote', ...cats];
+  el.innerHTML = chips.map(c=>`<button class="admin-btn" data-cat="${c}" style="padding:6px 12px;font-size:10.5px;background:${c==='Zote'?'rgba(201,168,76,.25)':'rgba(201,168,76,.1)'};color:var(--gold);border:1px solid rgba(201,168,76,.3);" onclick="filterByCategory('${c}',this)">${c}</button>`).join('');
+}
+function filterByCategory(cat,btn){
+  document.querySelectorAll('#hymn-cat-chips .admin-btn').forEach(b=>b.style.background='rgba(201,168,76,.1)');
+  if(btn) btn.style.background='rgba(201,168,76,.25)';
+  renderHymns(cat==='Zote' ? HYMNS : HYMNS.filter(h=>h.cat===cat));
+}
 function filterHymns(q){
-  renderHymns(HYMNS.filter(h=>h.name.toLowerCase().includes(q.toLowerCase())||h.cat.toLowerCase().includes(q.toLowerCase())));
+  const query = q.toLowerCase();
+  renderHymns(HYMNS.filter(h=>
+    h.name.toLowerCase().includes(query) ||
+    h.cat.toLowerCase().includes(query) ||
+    String(h.num).includes(query) ||
+    h.lyrics.some(b=>b.lines.toLowerCase().includes(query))
+  ));
+}
+function getPlaybackSequence(h){
+  if(!h.repeatChorus) return h.lyrics;
+  const chorus = h.lyrics.find(b=>b.type==='chorus');
+  const verses = h.lyrics.filter(b=>b.type==='verse');
+  if(!chorus || verses.length===0) return h.lyrics;
+  const seq = [chorus];
+  verses.forEach(v=>{ seq.push(v); seq.push(chorus); });
+  return seq;
+}
+function quickProject(num){
+  openHymn(num);
+  startSongProjection();
 }
 function openHymn(num){
   const h=HYMNS.find(x=>x.num===num); if(!h)return;
+  CURRENT_HYMN = h;
+  document.getElementById('proj-control-bar').style.display='none';
   let html=`<div class="hymn-lyrics-title">${h.name}</div><div class="hymn-lyrics-num">Wimbo Na. ${h.num} • ${h.cat}</div>`;
-  h.lyrics.forEach(b=>{
+  getPlaybackSequence(h).forEach(b=>{
     if(b.type==='chorus')html+=`<div class="chorus-block"><div class="chorus-label">${b.label}</div><div class="verse-lines">${b.lines.replace(/\n/g,'<br>')}</div></div>`;
     else html+=`<div class="verse-block"><div class="verse-label">${b.label}</div><div class="verse-lines">${b.lines.replace(/\n/g,'<br>')}</div></div>`;
   });
@@ -1931,7 +2063,7 @@ function initApp(){
     const saved=memLoad('song_audio')||{};
     Object.keys(saved).forEach(num=>{const s=SONGS_AUDIO.find(x=>x.num===parseInt(num));if(s){s.yt=saved[num].yt||null;s.mp3=saved[num].mp3||null;}});
   }catch(e){}
-  renderHymns(HYMNS);
+  renderHymns(HYMNS); renderHymnCatChips();
   renderSongs(SONGS_AUDIO);
   populateQuickSelect();
   renderDynamicSermons();
@@ -1939,6 +2071,31 @@ function initApp(){
   renderYouthVideos();
   renderAllMedia();
   renderAudioHymns();
+  loadCustomHymns();
+  syncChurchDataFromFirebase();
+}
+function syncChurchDataFromFirebase(){
+  fetch(FB_BASE + '/church_data.json').then(r=>r.json()).then(data=>{
+    if(!data) return;
+    Object.keys(data).forEach(k=>{
+      MEM[k]=data[k];
+      try{localStorage.setItem('stc_'+k,JSON.stringify(data[k]));}catch(e){}
+    });
+    // sasisha maonyesho yote yaliyotegemea data hii, sasa kutoka Firebase (yanayoshirikiwa na kila mtu)
+    if(data.song_audio){
+      Object.keys(data.song_audio).forEach(num=>{
+        const s=SONGS_AUDIO.find(x=>x.num===parseInt(num));
+        if(s){ s.yt=data.song_audio[num].yt||null; s.mp3=data.song_audio[num].mp3||null; }
+      });
+      renderSongs(SONGS_AUDIO);
+      renderAudioHymns();
+    }
+    renderDynamicSermons();
+    renderDynamicVideos();
+    renderYouthVideos();
+    renderAllMedia();
+    loadAdminData();
+  }).catch(()=>{});
 }
 
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',initApp);}
@@ -2387,6 +2544,372 @@ function openProjectorWindow(){
   window.open(location.pathname + '?projector=1', 'ShalomProjector');
 }
 
+// ---- ONGEZA WIMBO (Admin) — Firebase Realtime Database ----
+let hyBlockCount = 0;
+function addHymnBlock(type){
+  hyBlockCount++;
+  const id = 'hyb-'+hyBlockCount;
+  const label = type==='chorus' ? 'Kiitikio' : 'Ubeti';
+  const wrap = document.createElement('div');
+  wrap.id = id;
+  wrap.style.cssText = 'background:rgba(15,30,56,.6);border:1px solid rgba(201,168,76,.2);border-radius:9px;padding:10px;margin-bottom:10px;';
+  wrap.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+      <span style="font-family:'Cinzel',serif;font-size:10.5px;color:${type==='chorus'?'#7EB6F5':'var(--gold)'};letter-spacing:1px;">${type==='chorus'?'🔁 KIITIKIO':'📜 UBETI'}</span>
+      <button class="admin-btn" style="padding:3px 9px;font-size:9px;background:rgba(232,68,68,.15);color:#FF8080;" onclick="document.getElementById('${id}').remove()">✕</button>
+    </div>
+    <textarea class="admin-input" data-type="${type}" style="height:70px;resize:none;margin-bottom:0;" placeholder="Andika maneno ya ${label.toLowerCase()} hapa..."></textarea>`;
+  document.getElementById('hy-blocks').appendChild(wrap);
+}
+function saveHymn(){
+  const num = parseInt(document.getElementById('hy-num').value);
+  const name = document.getElementById('hy-name').value.trim();
+  const cat = document.getElementById('hy-cat').value.trim() || '—';
+  if(!num || !name){ alert('Weka namba na jina la wimbo.'); return; }
+  const blockEls = [...document.getElementById('hy-blocks').children];
+  if(blockEls.length===0){ alert('Ongeza angalau kipande kimoja (Ubeti au Kiitikio).'); return; }
+  let verseN = 0;
+  const lyrics = blockEls.map(el=>{
+    const ta = el.querySelector('textarea');
+    const type = ta.dataset.type;
+    const lines = ta.value.trim();
+    if(type==='chorus') return {type:'chorus', label:'Kiitikio', lines};
+    verseN++;
+    return {type:'verse', label:'Ubeti '+verseN, lines};
+  }).filter(b=>b.lines);
+  if(lyrics.length===0){ alert('Jaza maneno ya angalau kipande kimoja.'); return; }
+
+  const hymn = {num, name, cat, repeatChorus: document.getElementById('hy-repeat-chorus').checked, lyrics};
+  fetch(FB_BASE + '/hymns_custom/'+num+'.json', {
+    method:'PUT',
+    body: JSON.stringify(hymn)
+  }).then(()=>{
+    const existingIdx = HYMNS.findIndex(h=>h.num===num);
+    if(existingIdx>=0) HYMNS[existingIdx]=hymn; else HYMNS.push(hymn);
+    HYMNS.sort((a,b)=>a.num-b.num);
+    renderHymns(HYMNS); renderHymnCatChips();
+    renderHymnAdminList();
+    document.getElementById('hy-num').value='';
+    document.getElementById('hy-name').value='';
+    document.getElementById('hy-cat').value='';
+    document.getElementById('hy-blocks').innerHTML='';
+    showSuccess('hy-success');
+  }).catch(()=>alert('Imeshindwa kuhifadhi. Angalia mtandao wako.'));
+}
+let CUSTOM_HYMN_NUMS = new Set();
+function loadCustomHymns(){
+  fetch(FB_BASE + '/hymns_custom.json').then(r=>r.json()).then(data=>{
+    if(!data) return;
+    Object.values(data).forEach(h=>{
+      CUSTOM_HYMN_NUMS.add(h.num);
+      const idx = HYMNS.findIndex(x=>x.num===h.num);
+      if(idx>=0) HYMNS[idx]=h; else HYMNS.push(h);
+    });
+    HYMNS.sort((a,b)=>a.num-b.num);
+    renderHymns(HYMNS); renderHymnCatChips();
+    renderHymnAdminList();
+  }).catch(()=>{});
+}
+function renderHymnAdminList(){
+  const el = document.getElementById('hymn-admin-list');
+  if(!el) return;
+  const mine = HYMNS.filter(h=>CUSTOM_HYMN_NUMS.has(h.num));
+  if(mine.length===0){ el.innerHTML='<div style="font-size:12px;color:rgba(245,240,232,.3);text-align:center;padding:10px;">Bado hujaongeza wimbo wowote.</div>'; return; }
+  el.innerHTML = mine.map(h=>`<div class="admin-item"><div class="admin-item-info"><div class="admin-item-title">${h.num}. ${h.name}</div><div class="admin-item-sub">${h.cat}${h.lyrics.length===1?' ⚠️ kipande 1 tu':''}</div></div><button class="admin-btn" style="padding:6px 9px;font-size:9px;background:rgba(201,168,76,.15);color:var(--gold);margin-right:6px;" onclick="editHymn(${h.num})">✏️</button><button class="admin-btn admin-btn-del" onclick="deleteCustomHymn(${h.num})">🗑</button></div>`).join('');
+}
+function editHymn(num){
+  const h = HYMNS.find(x=>x.num===num);
+  if(!h) return;
+  document.getElementById('hy-num').value = h.num;
+  document.getElementById('hy-name').value = h.name;
+  document.getElementById('hy-cat').value = h.cat==='—'?'':h.cat;
+  document.getElementById('hy-repeat-chorus').checked = !!h.repeatChorus;
+  document.getElementById('hy-blocks').innerHTML='';
+  h.lyrics.forEach(b=>{
+    addHymnBlock(b.type);
+    const blocks = document.getElementById('hy-blocks').children;
+    blocks[blocks.length-1].querySelector('textarea').value = b.lines;
+  });
+  document.getElementById('hy-num').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function migrateAllHymnsToSystem(){
+  const missing = HYMNS.filter(h=>!CUSTOM_HYMN_NUMS.has(h.num));
+  if(missing.length===0){ alert('Nyimbo zote tayari zipo kwenye mfumo.'); return; }
+  if(!confirm('Hamisha nyimbo '+missing.length+' zilizobaki kwenye mfumo? Baada ya hapo zote zitaweza kuhaririwa hapa Admin.')) return;
+  const payload = {};
+  missing.forEach(h=>{ payload[h.num] = h; });
+  fetch(FB_BASE + '/hymns_custom.json', {
+    method:'PATCH',
+    body: JSON.stringify(payload)
+  }).then(()=>{
+    missing.forEach(h=>CUSTOM_HYMN_NUMS.add(h.num));
+    renderHymnAdminList();
+    alert('✅ Nyimbo zote zimehamishwa. Sasa zote zinaweza kuhaririwa hapa.');
+  }).catch(()=>alert('Imeshindwa kuhamisha. Angalia mtandao wako.'));
+}
+function deleteCustomHymn(num){
+  if(!confirm('Futa wimbo huu?')) return;
+  fetch(FB_BASE + '/hymns_custom/'+num+'.json', {method:'DELETE'}).then(()=>{
+    CUSTOM_HYMN_NUMS.delete(num);
+    const idx = HYMNS.findIndex(h=>h.num===num);
+    if(idx>=0) HYMNS.splice(idx,1);
+    renderHymns(HYMNS); renderHymnCatChips();
+    renderHymnAdminList();
+  });
+}
+
+// ---- KUPROJECT WIMBO (chorus/beti kwa mpangilio, bila namba wala neno 'Kiitikio') ----
+let CURRENT_HYMN = null;
+let projSongIdx = 0;
+function startSongProjection(){
+  if(!CURRENT_HYMN) return;
+  const pin = prompt('Weka PIN kuanza kuproject (Admin au Kiongozi wa Nyimbo):');
+  if(pin !== PIN && pin !== WORSHIP_PIN){ if(pin!==null) alert('❌ PIN si sahihi!'); return; }
+  projSongIdx = 0;
+  document.getElementById('proj-control-bar').style.display='block';
+  pushSongSlide();
+  document.getElementById('proj-control-bar').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function stopSongProjection(){
+  document.getElementById('proj-control-bar').style.display='none';
+  clearProjector();
+}
+
+// Udhibiti wa kibodi (rahisi kwa PC/Windows unapoongoza projector)
+document.addEventListener('keydown', e=>{
+  const bar = document.getElementById('proj-control-bar');
+  if(!bar || bar.style.display==='none') return;
+  const tag = (e.target.tagName||'').toLowerCase();
+  if(tag==='input' || tag==='textarea') return; // usisumbue mtu anayeandika
+  if(e.key==='ArrowRight' || e.key===' '){ e.preventDefault(); projSongStep(1); }
+  else if(e.key==='ArrowLeft'){ e.preventDefault(); projSongStep(-1); }
+  else if(e.key==='Escape'){ stopSongProjection(); }
+});
+
+// ---- BIBLIA — Kiswahili (Biblica Open "Neno") na Kiingereza (King James), zote kupitia jsDelivr CDN, bila API key ----
+function bibBase(){ return `https://cdn.jsdelivr.net/gh/wldeh/bible-api/bibles/${BIB_LANG==='en'?'en-kjv':'swh-onen'}/books`; }
+let BIB_LANG = 'sw';
+const BIBLE_BOOKS = [
+  {sw:'Mwanzo',en:'Genesis',slug:'genesis',ch:50},{sw:'Kutoka',en:'Exodus',slug:'exodus',ch:40},{sw:'Mambo ya Walawi',en:'Leviticus',slug:'leviticus',ch:27},
+  {sw:'Hesabu',en:'Numbers',slug:'numbers',ch:36},{sw:'Kumbukumbu la Torati',en:'Deuteronomy',slug:'deuteronomy',ch:34},{sw:'Yoshua',en:'Joshua',slug:'joshua',ch:24},
+  {sw:'Waamuzi',en:'Judges',slug:'judges',ch:21},{sw:'Ruthi',en:'Ruth',slug:'ruth',ch:4},{sw:'1 Samweli',en:'1 Samuel',slug:'1samuel',ch:31},
+  {sw:'2 Samweli',en:'2 Samuel',slug:'2samuel',ch:24},{sw:'1 Wafalme',en:'1 Kings',slug:'1kings',ch:22},{sw:'2 Wafalme',en:'2 Kings',slug:'2kings',ch:25},
+  {sw:'1 Mambo ya Nyakati',en:'1 Chronicles',slug:'1chronicles',ch:29},{sw:'2 Mambo ya Nyakati',en:'2 Chronicles',slug:'2chronicles',ch:36},{sw:'Ezra',en:'Ezra',slug:'ezra',ch:10},
+  {sw:'Nehemia',en:'Nehemiah',slug:'nehemiah',ch:13},{sw:'Esta',en:'Esther',slug:'esther',ch:10},{sw:'Ayubu',en:'Job',slug:'job',ch:42},
+  {sw:'Zaburi',en:'Psalms',slug:'psalms',ch:150},{sw:'Mithali',en:'Proverbs',slug:'proverbs',ch:31},{sw:'Mhubiri',en:'Ecclesiastes',slug:'ecclesiastes',ch:12},
+  {sw:'Wimbo Ulio Bora',en:'Song of Solomon',slug:'songofsolomon',ch:8},{sw:'Isaya',en:'Isaiah',slug:'isaiah',ch:66},{sw:'Yeremia',en:'Jeremiah',slug:'jeremiah',ch:52},
+  {sw:'Maombolezo',en:'Lamentations',slug:'lamentations',ch:5},{sw:'Ezekieli',en:'Ezekiel',slug:'ezekiel',ch:48},{sw:'Danieli',en:'Daniel',slug:'daniel',ch:12},
+  {sw:'Hosea',en:'Hosea',slug:'hosea',ch:14},{sw:'Yoeli',en:'Joel',slug:'joel',ch:3},{sw:'Amosi',en:'Amos',slug:'amos',ch:9},
+  {sw:'Obadia',en:'Obadiah',slug:'obadiah',ch:1},{sw:'Yona',en:'Jonah',slug:'jonah',ch:4},{sw:'Mika',en:'Micah',slug:'micah',ch:7},
+  {sw:'Nahumu',en:'Nahum',slug:'nahum',ch:3},{sw:'Habakuki',en:'Habakkuk',slug:'habakkuk',ch:3},{sw:'Sefania',en:'Zephaniah',slug:'zephaniah',ch:3},
+  {sw:'Hagai',en:'Haggai',slug:'haggai',ch:2},{sw:'Zekaria',en:'Zechariah',slug:'zechariah',ch:14},{sw:'Malaki',en:'Malachi',slug:'malachi',ch:4},
+  {sw:'Mathayo',en:'Matthew',slug:'matthew',ch:28},{sw:'Marko',en:'Mark',slug:'mark',ch:16},{sw:'Luka',en:'Luke',slug:'luke',ch:24},
+  {sw:'Yohana',en:'John',slug:'john',ch:21},{sw:'Matendo ya Mitume',en:'Acts',slug:'acts',ch:28},{sw:'Warumi',en:'Romans',slug:'romans',ch:16},
+  {sw:'1 Wakorintho',en:'1 Corinthians',slug:'1corinthians',ch:16},{sw:'2 Wakorintho',en:'2 Corinthians',slug:'2corinthians',ch:13},{sw:'Wagalatia',en:'Galatians',slug:'galatians',ch:6},
+  {sw:'Waefeso',en:'Ephesians',slug:'ephesians',ch:6},{sw:'Wafilipi',en:'Philippians',slug:'philippians',ch:4},{sw:'Wakolosai',en:'Colossians',slug:'colossians',ch:4},
+  {sw:'1 Wathesalonike',en:'1 Thessalonians',slug:'1thessalonians',ch:5},{sw:'2 Wathesalonike',en:'2 Thessalonians',slug:'2thessalonians',ch:3},{sw:'1 Timotheo',en:'1 Timothy',slug:'1timothy',ch:6},
+  {sw:'2 Timotheo',en:'2 Timothy',slug:'2timothy',ch:4},{sw:'Tito',en:'Titus',slug:'titus',ch:3},{sw:'Filemoni',en:'Philemon',slug:'philemon',ch:1},
+  {sw:'Waebrania',en:'Hebrews',slug:'hebrews',ch:13},{sw:'Yakobo',en:'James',slug:'james',ch:5},{sw:'1 Petro',en:'1 Peter',slug:'1peter',ch:5},
+  {sw:'2 Petro',en:'2 Peter',slug:'2peter',ch:3},{sw:'1 Yohana',en:'1 John',slug:'1john',ch:5},{sw:'2 Yohana',en:'2 John',slug:'2john',ch:1},
+  {sw:'3 Yohana',en:'3 John',slug:'3john',ch:1},{sw:'Yuda',en:'Jude',slug:'jude',ch:1},{sw:'Ufunuo',en:'Revelation',slug:'revelation',ch:22}
+];
+let bibCurrentBookIdx = 43; // Yohana kwa default
+let bibCurrentChapter = 3;
+
+function bibSetLang(lang){
+  BIB_LANG = lang;
+  document.getElementById('bib-lang-sw-btn').style.background = lang==='sw' ? 'rgba(201,168,76,.25)' : 'rgba(201,168,76,.1)';
+  document.getElementById('bib-lang-en-btn').style.background = lang==='en' ? 'rgba(201,168,76,.25)' : 'rgba(201,168,76,.1)';
+  document.getElementById('bib-version-label').textContent = lang==='en' ? 'King James Version — English' : 'Toleo la Kiswahili — Biblica Open (Neno)';
+  bibPopulateBooks(true);
+  bibLoadChapter();
+}
+function bibPopulateBooks(force){
+  const sel = document.getElementById('bib-book');
+  if(!sel || (sel.options.length && !force)) return;
+  sel.innerHTML = BIBLE_BOOKS.map((b,i)=>`<option value="${i}">${BIB_LANG==='en'?b.en:b.sw}</option>`).join('');
+  sel.value = bibCurrentBookIdx;
+  bibPopulateChapters();
+}
+function bibPopulateChapters(){
+  const book = BIBLE_BOOKS[bibCurrentBookIdx];
+  const sel = document.getElementById('bib-chapter');
+  let opts='';
+  for(let i=1;i<=book.ch;i++) opts+=`<option value="${i}">${i}</option>`;
+  sel.innerHTML = opts;
+  sel.value = bibCurrentChapter;
+}
+function bibOnBookChange(){
+  bibCurrentBookIdx = parseInt(document.getElementById('bib-book').value);
+  bibCurrentChapter = 1;
+  bibPopulateChapters();
+  bibLoadChapter();
+}
+function bibStepChapter(dir){
+  const book = BIBLE_BOOKS[bibCurrentBookIdx];
+  let ch = bibCurrentChapter + dir;
+  if(ch < 1){
+    bibCurrentBookIdx = Math.max(0, bibCurrentBookIdx-1);
+    ch = BIBLE_BOOKS[bibCurrentBookIdx].ch;
+  } else if(ch > book.ch){
+    bibCurrentBookIdx = Math.min(BIBLE_BOOKS.length-1, bibCurrentBookIdx+1);
+    ch = 1;
+  }
+  bibCurrentChapter = ch;
+  document.getElementById('bib-book').value = bibCurrentBookIdx;
+  bibPopulateChapters();
+  bibLoadChapter();
+}
+function bibExtractVerses(data){
+  // Pata array ya maudhui popote ndani ya JSON, chini ya majina ya kawaida kwanza
+  function findContentArray(obj, depth){
+    if(depth>6) return null;
+    if(obj && typeof obj==='object' && !Array.isArray(obj)){
+      for(const key of ['content','verses','data','items']){
+        if(Array.isArray(obj[key]) && obj[key].length) return obj[key];
+      }
+    }
+    if(Array.isArray(obj) && obj.length) return obj;
+    if(obj && typeof obj==='object'){
+      for(const k in obj){
+        const r = findContentArray(obj[k], depth+1);
+        if(r) return r;
+      }
+    }
+    return null;
+  }
+  const arr = findContentArray(data, 0);
+  if(!arr || arr.length===0) return [];
+
+  // Njia 1: kila kipengele kina namba+maneno pamoja (muundo rahisi)
+  const direct = arr.map(v=>{
+    if(!v || typeof v!=='object') return null;
+    const num = v.verse||v.number||v.verseNumber;
+    const text = (v.text||v.content||'').toString().trim();
+    if(num && text.length>1) return {num, text};
+    return null;
+  }).filter(Boolean);
+  if(direct.length && direct.length >= arr.length*0.4) return direct;
+
+  // Njia 2: mtiririko (USX-style) — namba ya mstari na maneno ni vitu tofauti mfululizo
+  const out=[]; let curNum=null, buf=[];
+  function flush(){ const t=buf.join(' ').replace(/\s+/g,' ').trim(); if(curNum!=null && t) out.push({num:curNum, text:t}); buf=[]; }
+  arr.forEach(item=>{
+    if(typeof item==='string'){ buf.push(item); return; }
+    if(!item || typeof item!=='object') return;
+    const num = item.number||item.verse||item.verseNumber;
+    const isVerseStart = num && (item.type==='verse'||item.marker==='v'||!item.eid) && !item.text;
+    if(isVerseStart){ flush(); curNum=num; return; }
+    if(typeof item.text==='string') buf.push(item.text);
+    else if(typeof item.content==='string') buf.push(item.content);
+  });
+  flush();
+  if(out.length) return out;
+
+  // Njia 3 (mwisho): kama kila kipengele ni maneno tu bila namba wazi, hesabu kwa mfuatano
+  return arr.map((v,i)=>{
+    const text = typeof v==='string' ? v : (v && (v.text||v.content)) || '';
+    return {num:i+1, text:text.toString().trim()};
+  }).filter(v=>v.text.length>1);
+}
+function bibCacheKey(){
+  const book = BIBLE_BOOKS[bibCurrentBookIdx];
+  return 'bibcache_'+BIB_LANG+'_'+book.slug+'_'+bibCurrentChapter;
+}
+function bibRenderVerses(verses, book, highlightVerse){
+  const reader = document.getElementById('bib-reader');
+  const title = BIB_LANG==='en' ? book.en : book.sw;
+  reader.innerHTML = `<div class="hymn-lyrics-title">${title} ${bibCurrentChapter}</div>` +
+    verses.map(v=>`<span id="bv-${v.num}" style="display:block;margin-bottom:8px;line-height:1.7;font-size:15px;color:rgba(245,240,232,.85);"><b style="color:var(--gold);font-family:'Cinzel',serif;font-size:11px;">${v.num}</b> ${v.text}</span>`).join('');
+  window.scrollTo({top:document.getElementById('bib-reader').offsetTop-80,behavior:'smooth'});
+  if(highlightVerse){
+    const el = document.getElementById('bv-'+highlightVerse);
+    if(el){ el.style.background='rgba(201,168,76,.15)'; el.style.borderRadius='6px'; el.style.padding='4px 6px'; el.scrollIntoView({behavior:'smooth',block:'center'}); }
+  }
+}
+function bibLoadChapter(highlightVerse){
+  bibCurrentChapter = parseInt(document.getElementById('bib-chapter').value);
+  const book = BIBLE_BOOKS[bibCurrentBookIdx];
+  const reader = document.getElementById('bib-reader');
+  const note = document.getElementById('bib-offline-note');
+  const cacheKey = bibCacheKey();
+
+  // Onyesha mara moja kutoka kwenye kumbukumbu ya simu ikiwa ipo (hata bila intaneti)
+  let cached = null;
+  try{ const c = localStorage.getItem(cacheKey); if(c) cached = JSON.parse(c); }catch(e){}
+  if(cached){
+    bibRenderVerses(cached, book, highlightVerse);
+    note.textContent = '💾 Inaonekana kutoka kwenye kumbukumbu ya simu (offline).';
+  } else {
+    reader.innerHTML = '<div style="text-align:center;color:rgba(245,240,232,.4);padding:30px 0;">⏳ Inapakia...</div>';
+    note.textContent = '';
+  }
+
+  // Pakua toleo jipya kwenye mtandao (au la kwanza kabisa), kisha hifadhi kwa matumizi ya baadaye ya offline
+  fetch(`${bibBase()}/${book.slug}/chapters/${bibCurrentChapter}.json`)
+    .then(r=>r.json())
+    .then(data=>{
+      const verses = bibExtractVerses(data);
+      if(verses.length===0){
+        if(!cached) reader.innerHTML = '<div style="text-align:center;color:rgba(245,240,232,.4);padding:30px 0;">Sura hii haipatikani kwa sasa.</div>';
+        return;
+      }
+      try{ localStorage.setItem(cacheKey, JSON.stringify(verses)); }catch(e){}
+      bibRenderVerses(verses, book, highlightVerse);
+      note.textContent = '✅ Sura hii sasa inapatikana bila intaneti pia.';
+    })
+    .catch(()=>{
+      if(!cached){ reader.innerHTML = '<div style="text-align:center;color:rgba(245,240,232,.4);padding:30px 0;">Huna intaneti na sura hii haijawahi kufunguliwa kabla.</div>'; }
+      else{ note.textContent = '💾 Umeonyeshwa toleo lililohifadhiwa (huna intaneti sasa hivi).'; }
+    });
+}
+function bibQuickJump(){
+  const raw = document.getElementById('bib-quick').value.trim();
+  if(!raw) return;
+  // tenganisha "Sura:Mstari" mwishoni na jina la kitabu
+  const m = raw.match(/^(.+?)\s+(\d+)(?::(\d+))?$/);
+  if(!m){ alert('Andika kwa mfano: Yohana 3:16 au Zaburi 23'); return; }
+  const bookQuery = m[1].trim().toLowerCase();
+  const chapter = parseInt(m[2]);
+  const verse = m[3] ? parseInt(m[3]) : null;
+  let idx = BIBLE_BOOKS.findIndex(b=>(BIB_LANG==='en'?b.en:b.sw).toLowerCase()===bookQuery);
+  if(idx<0) idx = BIBLE_BOOKS.findIndex(b=>(BIB_LANG==='en'?b.en:b.sw).toLowerCase().startsWith(bookQuery));
+  if(idx<0) idx = BIBLE_BOOKS.findIndex(b=>(BIB_LANG==='en'?b.en:b.sw).toLowerCase().includes(bookQuery));
+  if(idx<0){ alert('Sijapata kitabu "'+m[1]+'". Jaribu jina lingine au tumia dropdown.'); return; }
+  bibCurrentBookIdx = idx;
+  bibCurrentChapter = Math.min(chapter, BIBLE_BOOKS[idx].ch);
+  document.getElementById('bib-book').value = idx;
+  bibPopulateChapters();
+  document.getElementById('bib-chapter').value = bibCurrentChapter;
+  bibLoadChapter(verse);
+}
+// Mishale ya kibodi kwa kusogea sura (rahisi kwa PC)
+document.addEventListener('keydown', e=>{
+  if(!document.getElementById('tab-biblia') || !document.getElementById('tab-biblia').classList.contains('active')) return;
+  const tag = (e.target.tagName||'').toLowerCase();
+  if(tag==='input' || tag==='textarea' || tag==='select') return;
+  if(e.key==='ArrowRight'){ e.preventDefault(); bibStepChapter(1); }
+  else if(e.key==='ArrowLeft'){ e.preventDefault(); bibStepChapter(-1); }
+});
+function projSongStep(dir){
+  if(!CURRENT_HYMN) return;
+  const seq = getPlaybackSequence(CURRENT_HYMN);
+  const n = seq.length;
+  projSongIdx = Math.min(n-1, Math.max(0, projSongIdx+dir));
+  pushSongSlide();
+}
+function pushSongSlide(){
+  const seq = getPlaybackSequence(CURRENT_HYMN);
+  const block = seq[projSongIdx];
+  if(!block) return;
+  document.getElementById('proj-current-preview').textContent = block.lines;
+  document.getElementById('proj-slide-count').textContent = (projSongIdx+1)+'/'+seq.length;
+  fetch(FB_BASE + '/qna/current.json', {
+    method:'PUT',
+    body: JSON.stringify({ type:'song', text: block.lines, ts:Date.now() })
+  });
+}
+
 // Projector: onyesha kile kinachotumwa na admin
 let projectorApi = null;
 function initProjectorView(){
@@ -2406,6 +2929,12 @@ function initProjectorView(){
       document.getElementById('projector-jitsi').style.display='none';
       if(projectorApi){ projectorApi.dispose(); projectorApi=null; }
       document.getElementById('proj-name').textContent = data.name||'';
+      document.getElementById('proj-text').style.display='block';
+      document.getElementById('proj-text').textContent = data.text||'';
+    } else if(data.type==='song'){
+      document.getElementById('projector-jitsi').style.display='none';
+      if(projectorApi){ projectorApi.dispose(); projectorApi=null; }
+      document.getElementById('proj-name').textContent = '';
       document.getElementById('proj-text').style.display='block';
       document.getElementById('proj-text').textContent = data.text||'';
     } else if(data.type==='jitsi'){
@@ -2438,11 +2967,30 @@ function initProjectorView(){
 </script>
 <!-- PROJECTOR DISPLAY (fungua kwa ?projector=1) -->
 <div id="projector-view">
+  <button id="proj-fs-btn" onclick="toggleProjectorFullscreen()" style="position:absolute;top:20px;right:20px;background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.4);border-radius:8px;padding:10px 16px;font-family:'Cinzel',serif;font-size:12px;letter-spacing:1px;cursor:pointer;z-index:10;">⛶ FULL SCREEN</button>
   <div class="proj-logo">✝ SHALOM TABERNACLE ✝</div>
   <div class="proj-name" id="proj-name"></div>
   <div class="proj-text" id="proj-text">Karibu — Mafundisho ya Kati ya Wiki</div>
   <div id="projector-jitsi"></div>
 </div>
+
+<script>
+function toggleProjectorFullscreen(){
+  const el = document.getElementById('projector-view');
+  if(!document.fullscreenElement){
+    (el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen).call(el)
+      .then(()=>{ document.getElementById('proj-fs-btn').textContent='⛶ TOKA FULL SCREEN'; })
+      .catch(()=>{ alert('Kivinjari chako hakiruhusu full screen kiotomatiki. Bonyeza F11 kwenye keyboard.'); });
+  } else {
+    (document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen).call(document)
+      .then(()=>{ document.getElementById('proj-fs-btn').textContent='⛶ FULL SCREEN'; });
+  }
+}
+document.addEventListener('fullscreenchange', ()=>{
+  const btn = document.getElementById('proj-fs-btn');
+  if(btn) btn.textContent = document.fullscreenElement ? '⛶ TOKA FULL SCREEN' : '⛶ FULL SCREEN';
+});
+</script>
 
 </body>
 </html>
