@@ -568,6 +568,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   <button class="nav-btn" onclick="showTab('admin',this)"><span class="nav-icon">⚙️</span>Admin</button>
   <button class="nav-btn" onclick="showTab('jitsi',this)"><span class="nav-icon">🎥</span>Video Call</button>
   <button class="nav-btn" onclick="showTab('biblia',this)"><span class="nav-icon">📕</span>Biblia</button>
+  <button class="nav-btn" onclick="showTab('picha',this)"><span class="nav-icon">🖼️</span>Picha</button>
 </nav>
 
 <div id="content">
@@ -1133,6 +1134,8 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     <div id="atab-picha" class="admin-tab-content">
       <div class="admin-section">
         <div class="admin-section-title">🖼️ Pakia Picha</div>
+        <input class="admin-input" id="p-album" placeholder="Jina la Album/Tukio (mfano: Ibada ya Krismasi 2026)..." list="p-album-list"/>
+        <datalist id="p-album-list"></datalist>
         <input class="admin-input" id="p-caption" placeholder="Maelezo ya picha (hiari)..."/>
         <div class="file-upload-area" onclick="document.getElementById('p-file').click()">
           <span class="file-upload-icon">📷</span>
@@ -1262,6 +1265,29 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     <button class="font-ctrl-btn" style="flex:1;" onclick="bibStepChapter(-1)">◀ Sura Iliyopita</button>
     <button class="font-ctrl-btn" style="flex:1;" onclick="bibStepChapter(1)">Sura Ifuatayo ▶</button>
   </div>
+</div>
+
+<!-- PICHA (Public Gallery, with albums) -->
+<div id="tab-picha" class="tab-panel">
+  <div id="picha-folders-view">
+    <div class="sec-title">🖼️ Picha za Kanisa</div>
+    <div class="section-sub">Bonyeza album kuona picha zake</div>
+    <div class="sec-div"></div>
+    <div id="picha-folders-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"></div>
+  </div>
+  <div id="picha-album-view" style="display:none;">
+    <button class="back-btn" onclick="closePichaAlbum()">← Rudi kwenye Albums</button>
+    <div class="sec-title" id="picha-album-title"></div>
+    <div class="sec-div"></div>
+    <div class="photo-grid" id="picha-album-grid"></div>
+  </div>
+</div>
+
+<!-- Lightbox ya kuona picha kubwa -->
+<div id="picha-lightbox" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(2,6,14,.96);align-items:center;justify-content:center;flex-direction:column;padding:20px;" onclick="closePichaLightbox()">
+  <img id="picha-lightbox-img" src="" style="max-width:100%;max-height:80vh;border-radius:10px;object-fit:contain;"/>
+  <div id="picha-lightbox-caption" style="color:rgba(245,240,232,.75);font-size:13px;margin-top:14px;text-align:center;max-width:90%;"></div>
+  <button class="back-btn" style="margin-top:16px;" onclick="closePichaLightbox()">✕ Funga</button>
 </div>
 
 </div><!-- /content -->
@@ -1947,19 +1973,76 @@ function renderYouthVideos(){
 function handlePhotoUpload(input){
   const files=Array.from(input.files);
   const caption=document.getElementById('p-caption').value.trim();
+  const album=document.getElementById('p-album').value.trim() || 'Picha za Kanisa';
   const photos=memLoad('photos')||[];
   let loaded=0;
   files.forEach(file=>{
     const r=new FileReader();
     r.onload=e=>{
-      photos.unshift({id:Date.now()+Math.random(),src:e.target.result,caption});
+      photos.unshift({id:Date.now()+Math.random(),src:e.target.result,caption,album,ts:Date.now()});
       loaded++;
-      if(loaded===files.length){memSave('photos',photos);showSuccess('p-success');loadAdminData();}
+      if(loaded===files.length){
+        memSave('photos',photos);
+        showSuccess('p-success');
+        loadAdminData();
+        renderPichaGallery();
+        document.getElementById('p-caption').value='';
+      }
     };
     r.readAsDataURL(file);
   });
 }
-function deletePhoto(id){let l=memLoad('photos')||[];l=l.filter(p=>p.id!==id);memSave('photos',l);loadAdminData();}
+function deletePhoto(id){let l=memLoad('photos')||[];l=l.filter(p=>p.id!==id);memSave('photos',l);loadAdminData();renderPichaGallery();}
+
+// ---- PICHA (Public Gallery na Albums) ----
+function renderPichaGallery(){
+  const photos = memLoad('photos')||[];
+  const grid = document.getElementById('picha-folders-grid');
+  if(!grid) return;
+  const albums = {};
+  photos.forEach(p=>{ const a=p.album||'Picha za Kanisa'; if(!albums[a]) albums[a]=[]; albums[a].push(p); });
+  const albumNames = Object.keys(albums);
+  if(albumNames.length===0){
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:rgba(245,240,232,.35);font-style:italic;padding:30px 0;">Bado hakuna picha zilizowekwa.</div>';
+  } else {
+    grid.innerHTML = albumNames.map(name=>`
+      <div style="cursor:pointer;background:linear-gradient(135deg,rgba(15,30,56,.9),rgba(7,17,31,.9));border:1px solid rgba(201,168,76,.22);border-radius:12px;overflow:hidden;" onclick="openPichaAlbum('${name.replace(/'/g,"\\'")}')">
+        <img src="${albums[name][0].src}" style="width:100%;height:110px;object-fit:cover;display:block;"/>
+        <div style="padding:8px 10px;">
+          <div style="font-family:'Cinzel',serif;font-size:11.5px;color:var(--gold);">${name}</div>
+          <div style="font-size:10.5px;color:rgba(245,240,232,.4);">${albums[name].length} picha</div>
+        </div>
+      </div>`).join('');
+  }
+  // sasisha orodha ya majina ya album kwa admin (datalist)
+  const dl = document.getElementById('p-album-list');
+  if(dl) dl.innerHTML = albumNames.map(n=>`<option value="${n}"></option>`).join('');
+}
+let pichaCurrentAlbum = null;
+function openPichaAlbum(name){
+  pichaCurrentAlbum = name;
+  const photos = (memLoad('photos')||[]).filter(p=>(p.album||'Picha za Kanisa')===name);
+  document.getElementById('picha-album-title').textContent = name;
+  document.getElementById('picha-album-grid').innerHTML = photos.map(p=>`
+    <div class="photo-thumb" style="cursor:pointer;" onclick='openPichaLightbox(${JSON.stringify(p.src)}, ${JSON.stringify(p.caption||"")})'>
+      <img src="${p.src}" alt="${(p.caption||'Picha').replace(/"/g,'&quot;')}"/>
+    </div>`).join('');
+  document.getElementById('picha-folders-view').style.display='none';
+  document.getElementById('picha-album-view').style.display='block';
+  window.scrollTo(0,0);
+}
+function closePichaAlbum(){
+  document.getElementById('picha-folders-view').style.display='block';
+  document.getElementById('picha-album-view').style.display='none';
+}
+function openPichaLightbox(src, caption){
+  document.getElementById('picha-lightbox-img').src = src;
+  document.getElementById('picha-lightbox-caption').textContent = caption||'';
+  document.getElementById('picha-lightbox').style.display='flex';
+}
+function closePichaLightbox(){
+  document.getElementById('picha-lightbox').style.display='none';
+}
 
 // MEDIA
 function switchMediaTab(tab,btn){
@@ -2071,6 +2154,7 @@ function initApp(){
   renderYouthVideos();
   renderAllMedia();
   renderAudioHymns();
+  renderPichaGallery();
   loadCustomHymns();
   syncChurchDataFromFirebase();
 }
@@ -2095,6 +2179,7 @@ function syncChurchDataFromFirebase(){
     renderYouthVideos();
     renderAllMedia();
     loadAdminData();
+    renderPichaGallery();
   }).catch(()=>{});
 }
 
