@@ -2530,9 +2530,33 @@ function startJitsiRoom(roomName, label, opts){
   });
 }
 
-function openJitsiLiveHost(){
-  const pin = prompt('Weka neno la siri la Admin kuanza Live:');
-  if(pin !== PIN){ if(pin!==null) alert('❌ Neno la siri si sahihi!'); return; }
+// ---- PIN MODAL (badala ya prompt(), ambayo Chrome huizuia kwenye PWA iliyosakinishwa/Home Screen) ----
+let pinModalResolve = null;
+function askPin(title){
+  return new Promise(resolve=>{
+    pinModalResolve = resolve;
+    document.getElementById('pin-modal-title').textContent = title || 'Weka PIN';
+    const inp = document.getElementById('pin-modal-input');
+    inp.value = '';
+    document.getElementById('pin-modal').style.display='flex';
+    setTimeout(()=>inp.focus(), 150);
+  });
+}
+function pinModalConfirm(){
+  const val = document.getElementById('pin-modal-input').value;
+  document.getElementById('pin-modal').style.display='none';
+  if(pinModalResolve){ pinModalResolve(val); pinModalResolve=null; }
+}
+function pinModalCancel(){
+  document.getElementById('pin-modal').style.display='none';
+  if(pinModalResolve){ pinModalResolve(null); pinModalResolve=null; }
+}
+document.getElementById('pin-modal-input')?.addEventListener('keydown', e=>{ if(e.key==='Enter') pinModalConfirm(); });
+
+async function openJitsiLiveHost(){
+  let pin = await askPin('Weka neno la siri la Admin kuanza Live');
+  while(pin!==null && pin!==PIN){ pin = await askPin('❌ Si sahihi. Jaribu tena — Weka neno la siri la Admin'); }
+  if(pin===null) return;
   startJitsiRoom(JITSI_LIVE_ROOM, '📡 Live — Kiongozi', {startMuted:false, displayName:'Mch. J. Pill'});
 }
 
@@ -2804,10 +2828,11 @@ function deleteCustomHymn(num){
 // ---- KUPROJECT WIMBO (chorus/beti kwa mpangilio, bila namba wala neno 'Kiitikio') ----
 let CURRENT_HYMN = null;
 let projSongIdx = 0;
-function startSongProjection(){
+async function startSongProjection(){
   if(!CURRENT_HYMN) return;
-  const pin = prompt('Weka PIN kuanza kuproject (Admin au Kiongozi wa Nyimbo):');
-  if(pin !== PIN && pin !== WORSHIP_PIN){ if(pin!==null) alert('❌ PIN si sahihi!'); return; }
+  let pin = await askPin('Weka PIN kuanza kuproject (Admin au Kiongozi wa Nyimbo)');
+  while(pin!==null && pin!==PIN && pin!==WORSHIP_PIN){ pin = await askPin('❌ PIN si sahihi. Jaribu tena'); }
+  if(pin===null) return;
   projSongIdx = 0;
   document.getElementById('proj-control-bar').style.display='block';
   pushSongSlide();
@@ -3109,6 +3134,18 @@ function initProjectorView(){
 })();
 </script>
 <!-- PROJECTOR DISPLAY (fungua kwa ?projector=1) -->
+<!-- PIN MODAL (badala ya prompt() ambayo haifanyi kazi kwenye PWA iliyosakinishwa) -->
+<div id="pin-modal" style="display:none;position:fixed;inset:0;z-index:99997;background:rgba(2,6,14,.85);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:linear-gradient(135deg,#0F1E38,#040C18);border:1px solid rgba(201,168,76,.35);border-radius:14px;padding:24px;max-width:320px;width:100%;text-align:center;">
+    <div style="font-family:'Cinzel',serif;color:var(--gold);font-size:13.5px;margin-bottom:14px;line-height:1.5;" id="pin-modal-title">Weka PIN</div>
+    <input type="password" id="pin-modal-input" class="admin-input" inputmode="numeric" style="text-align:center;font-size:22px;letter-spacing:6px;margin-bottom:14px;"/>
+    <div style="display:flex;gap:8px;">
+      <button class="back-btn" style="flex:1;margin-bottom:0;" onclick="pinModalCancel()">Ghairi</button>
+      <button class="admin-btn admin-btn-save" style="flex:1;" onclick="pinModalConfirm()">Sawa</button>
+    </div>
+  </div>
+</div>
+
 <div id="projector-view">
   <button id="proj-fs-btn" onclick="toggleProjectorFullscreen()" style="position:absolute;top:20px;right:20px;background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.4);border-radius:8px;padding:10px 16px;font-family:'Cinzel',serif;font-size:12px;letter-spacing:1px;cursor:pointer;z-index:10;">⛶ FULL SCREEN</button>
   <div class="proj-logo">✝ SHALOM TABERNACLE ✝</div>
