@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<meta name="app-version" id="app-version-tag" content="2026.08.06-1"/>
 <title>Shalom Tabernacle Churchtz</title>
 
   <link rel="manifest" href="manifest.json">
@@ -1068,6 +1072,10 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   </div>
   <div id="admin-panel-content" class="admin-panel">
     <button class="admin-logout" onclick="adminLogout()">🔒 Toka Admin</button>
+    <div style="background:rgba(46,134,222,.1);border:1px solid rgba(46,134,222,.3);border-radius:10px;padding:10px 12px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <div style="font-size:10.5px;color:#7EB6F5;">📦 Toleo la App: <b id="admin-version-display">—</b></div>
+      <button class="admin-btn" style="background:rgba(46,134,222,.2);color:#7EB6F5;padding:6px 12px;font-size:9.5px;" onclick="forceAppUpdate()">🔄 Sasisha App Kabisa</button>
+    </div>
     <div class="admin-tab-btns">
       <button class="admin-tab-btn active" onclick="switchAdminTab('mahubiri',this)">🎙️ Mahubiri</button>
       <button class="admin-tab-btn" onclick="switchAdminTab('videos',this)">🎬 Video</button>
@@ -2152,7 +2160,26 @@ function loadAdminData(){
 }
 
 // INIT
+function forceAppUpdate(){
+  if(!confirm('Hii itafuta cache zote na kupakua toleo jipya kabisa la app. Endelea?')) return;
+  (async()=>{
+    try{
+      if('serviceWorker' in navigator){
+        const regs = await navigator.serviceWorker.getRegistrations();
+        for(const reg of regs){ await reg.unregister(); }
+      }
+      if('caches' in window){
+        const keys = await caches.keys();
+        for(const k of keys){ await caches.delete(k); }
+      }
+    }catch(e){}
+    location.href = location.pathname + '?nocache=' + Date.now();
+  })();
+}
 function initApp(){
+  const v = document.getElementById('app-version-tag')?.content || '—';
+  const vEl = document.getElementById('admin-version-display');
+  if(vEl) vEl.textContent = v;
   try{
     const saved=memLoad('song_audio')||{};
     Object.keys(saved).forEach(num=>{const s=SONGS_AUDIO.find(x=>x.num===parseInt(num));if(s){s.yt=saved[num].yt||null;s.mp3=saved[num].mp3||null;}});
