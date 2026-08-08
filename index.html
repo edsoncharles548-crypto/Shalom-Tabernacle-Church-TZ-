@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
-<meta name="app-version" id="app-version-tag" content="2026.08.06-1"/>
+<meta name="app-version" id="app-version-tag" content="2026.08.06-3"/>
 <title>Shalom Tabernacle Churchtz</title>
 
   <link rel="manifest" href="manifest.json">
@@ -743,6 +743,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
       <div style="font-family:'Cinzel',serif;font-size:11px;color:var(--gold);min-width:50px;text-align:center;" id="proj-slide-count">1/1</div>
       <button class="font-ctrl-btn" onclick="projSongStep(1)">Mbele ▶</button>
     </div>
+    <button class="admin-btn" style="width:100%;margin-top:10px;background:rgba(201,168,76,.2);color:var(--gold);" onclick="openSongFullscreenHere()">🖥️ Onyesho Kamili Papo Hapa (Simu Hii)</button>
   </div>
     <div class="hymn-settings-bar">
       <div class="hymn-settings-title">⚙️ Mipangilio ya Kusoma
@@ -2789,7 +2790,6 @@ function trySyncPendingHymns(){
 }
 setInterval(trySyncPendingHymns, 20000); // jaribu kutuma tena kila sekunde 20 kama mtandao umerudi
 window.addEventListener('online', trySyncPendingHymns);
-}
 let CUSTOM_HYMN_NUMS = new Set();
 function loadCustomHymns(){
   fetch(FB_BASE + '/hymns_custom.json').then(r=>r.json()).then(data=>{
@@ -2867,6 +2867,7 @@ async function startSongProjection(){
 }
 function stopSongProjection(){
   document.getElementById('proj-control-bar').style.display='none';
+  closeSongFullscreenHere();
   clearProjector();
 }
 
@@ -3103,6 +3104,27 @@ function pushSongSlide(){
     method:'PUT',
     body: JSON.stringify({ type:'song', text: block.lines, ts:Date.now() })
   });
+  syncSongFullscreenHere();
+}
+function syncSongFullscreenHere(){
+  const view = document.getElementById('song-fullscreen-view');
+  if(!view || view.style.display==='none') return;
+  const seq = getPlaybackSequence(CURRENT_HYMN);
+  const block = seq[projSongIdx];
+  if(!block) return;
+  document.getElementById('sfv-text').textContent = block.lines;
+  document.getElementById('sfv-counter').textContent = (projSongIdx+1)+'/'+seq.length;
+}
+function openSongFullscreenHere(){
+  const view = document.getElementById('song-fullscreen-view');
+  view.style.display='flex';
+  syncSongFullscreenHere();
+  const req = view.requestFullscreen || view.webkitRequestFullscreen || view.msRequestFullscreen;
+  if(req) req.call(view).catch(()=>{});
+}
+function closeSongFullscreenHere(){
+  document.getElementById('song-fullscreen-view').style.display='none';
+  if(document.fullscreenElement){ (document.exitFullscreen||document.webkitExitFullscreen||document.msExitFullscreen)?.call(document); }
 }
 
 // Projector: onyesha kile kinachotumwa na admin
@@ -3162,6 +3184,20 @@ function initProjectorView(){
 </script>
 <!-- PROJECTOR DISPLAY (fungua kwa ?projector=1) -->
 <!-- PIN MODAL (badala ya prompt() ambayo haifanyi kazi kwenye PWA iliyosakinishwa) -->
+<!-- ONYESHO KAMILI LA WIMBO PAPO HAPA (kwenye simu/PC hii hii, si dirisha jingine) -->
+<div id="song-fullscreen-view" style="display:none;position:fixed;inset:0;z-index:99996;background:#040C18;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;">
+  <button onclick="closeSongFullscreenHere()" style="position:absolute;top:18px;right:18px;background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.4);border-radius:8px;padding:8px 14px;font-family:'Cinzel',serif;font-size:11px;z-index:5;">✕ FUNGA</button>
+  <div id="sfv-counter" style="position:absolute;top:22px;left:18px;color:rgba(245,240,232,.35);font-family:'Cinzel',serif;font-size:11px;">1/1</div>
+  <div id="sfv-text" style="font-family:'EB Garamond',serif;font-size:38px;line-height:1.6;color:var(--light);white-space:pre-line;max-width:900px;"></div>
+  <div style="position:absolute;bottom:0;left:0;right:0;display:flex;">
+    <div onclick="projSongStep(-1);syncSongFullscreenHere()" style="flex:1;height:90px;"></div>
+    <div onclick="projSongStep(1);syncSongFullscreenHere()" style="flex:1;height:90px;"></div>
+  </div>
+  <div style="position:absolute;bottom:14px;left:0;right:0;display:flex;justify-content:space-between;padding:0 30px;pointer-events:none;color:rgba(201,168,76,.4);font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;">
+    <span>◀ NYUMA</span><span>MBELE ▶</span>
+  </div>
+</div>
+
 <div id="pin-modal" style="display:none;position:fixed;inset:0;z-index:99997;background:rgba(2,6,14,.85);align-items:center;justify-content:center;padding:20px;">
   <div style="background:linear-gradient(135deg,#0F1E38,#040C18);border:1px solid rgba(201,168,76,.35);border-radius:14px;padding:24px;max-width:320px;width:100%;text-align:center;">
     <div style="font-family:'Cinzel',serif;color:var(--gold);font-size:13.5px;margin-bottom:14px;line-height:1.5;" id="pin-modal-title">Weka PIN</div>
