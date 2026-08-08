@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
-<meta name="app-version" id="app-version-tag" content="2026.08.06-3"/>
+<meta name="app-version" id="app-version-tag" content="2026.08.08-1"/>
 <title>Shalom Tabernacle Churchtz</title>
 
   <link rel="manifest" href="manifest.json">
@@ -1736,10 +1736,12 @@ function filterHymns(q){
   ));
 }
 function getPlaybackSequence(h){
-  if(!h.repeatChorus) return h.lyrics;
-  const chorus = h.lyrics.find(b=>b.type==='chorus');
+  if(h.repeatChorus === false) return h.lyrics; // wimbo huu tu ndio umezimwa kwa makusudi
+  const choruses = h.lyrics.filter(b=>b.type==='chorus');
   const verses = h.lyrics.filter(b=>b.type==='verse');
-  if(!chorus || verses.length===0) return h.lyrics;
+  // rudia kiotomatiki tu kama kuna KIITIKIO KIMOJA na beti mbili au zaidi (vinginevyo tumia mpangilio wa asili)
+  if(choruses.length!==1 || verses.length<2) return h.lyrics;
+  const chorus = choruses[0];
   const seq = [chorus];
   verses.forEach(v=>{ seq.push(v); seq.push(chorus); });
   return seq;
@@ -3102,7 +3104,7 @@ function pushSongSlide(){
   document.getElementById('proj-slide-count').textContent = (projSongIdx+1)+'/'+seq.length;
   fetch(FB_BASE + '/qna/current.json', {
     method:'PUT',
-    body: JSON.stringify({ type:'song', text: block.lines, ts:Date.now() })
+    body: JSON.stringify({ type:'song', text: block.lines, songName: CURRENT_HYMN.name, songNum: CURRENT_HYMN.num, label: block.label, ts:Date.now() })
   });
   syncSongFullscreenHere();
 }
@@ -3112,8 +3114,10 @@ function syncSongFullscreenHere(){
   const seq = getPlaybackSequence(CURRENT_HYMN);
   const block = seq[projSongIdx];
   if(!block) return;
+  document.getElementById('sfv-title').textContent = CURRENT_HYMN.name;
   document.getElementById('sfv-text').textContent = block.lines;
-  document.getElementById('sfv-counter').textContent = (projSongIdx+1)+'/'+seq.length;
+  document.getElementById('sfv-songnum').textContent = 'Wimbo #'+CURRENT_HYMN.num;
+  document.getElementById('sfv-label').textContent = block.label;
 }
 function openSongFullscreenHere(){
   const view = document.getElementById('song-fullscreen-view');
@@ -3137,24 +3141,38 @@ function initProjectorView(){
   const es = new EventSource(FB_BASE + '/qna/current.json');
   const render = (data)=>{
     if(!data || data.type==='idle'){
+      document.getElementById('proj-logo').style.display='block';
+      document.getElementById('proj-song-bar').style.display='none';
+      document.getElementById('projector-view').style.background='';
       document.getElementById('proj-name').textContent = '';
       document.getElementById('proj-text').style.display='block';
       document.getElementById('proj-text').textContent = 'Karibu — Mafundisho ya Kati ya Wiki';
       document.getElementById('projector-jitsi').style.display='none';
       if(projectorApi){ projectorApi.dispose(); projectorApi=null; }
     } else if(data.type==='text'){
+      document.getElementById('proj-logo').style.display='block';
+      document.getElementById('proj-song-bar').style.display='none';
+      document.getElementById('projector-view').style.background='';
       document.getElementById('projector-jitsi').style.display='none';
       if(projectorApi){ projectorApi.dispose(); projectorApi=null; }
       document.getElementById('proj-name').textContent = data.name||'';
       document.getElementById('proj-text').style.display='block';
       document.getElementById('proj-text').textContent = data.text||'';
     } else if(data.type==='song'){
+      document.getElementById('proj-logo').style.display='none';
+      document.getElementById('projector-view').style.background='#000';
       document.getElementById('projector-jitsi').style.display='none';
       if(projectorApi){ projectorApi.dispose(); projectorApi=null; }
-      document.getElementById('proj-name').textContent = '';
+      document.getElementById('proj-name').textContent = data.songName||'';
       document.getElementById('proj-text').style.display='block';
       document.getElementById('proj-text').textContent = data.text||'';
+      document.getElementById('proj-song-bar').style.display='flex';
+      document.getElementById('proj-song-num').textContent = data.songNum ? ('Wimbo #'+data.songNum) : '';
+      document.getElementById('proj-song-label').textContent = data.label || '';
     } else if(data.type==='jitsi'){
+      document.getElementById('proj-logo').style.display='block';
+      document.getElementById('proj-song-bar').style.display='none';
+      document.getElementById('projector-view').style.background='';
       document.getElementById('proj-name').textContent='';
       document.getElementById('proj-text').style.display='none';
       const jc = document.getElementById('projector-jitsi');
@@ -3185,16 +3203,19 @@ function initProjectorView(){
 <!-- PROJECTOR DISPLAY (fungua kwa ?projector=1) -->
 <!-- PIN MODAL (badala ya prompt() ambayo haifanyi kazi kwenye PWA iliyosakinishwa) -->
 <!-- ONYESHO KAMILI LA WIMBO PAPO HAPA (kwenye simu/PC hii hii, si dirisha jingine) -->
-<div id="song-fullscreen-view" style="display:none;position:fixed;inset:0;z-index:99996;background:#040C18;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;">
-  <button onclick="closeSongFullscreenHere()" style="position:absolute;top:18px;right:18px;background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.4);border-radius:8px;padding:8px 14px;font-family:'Cinzel',serif;font-size:11px;z-index:5;">✕ FUNGA</button>
-  <div id="sfv-counter" style="position:absolute;top:22px;left:18px;color:rgba(245,240,232,.35);font-family:'Cinzel',serif;font-size:11px;">1/1</div>
-  <div id="sfv-text" style="font-family:'EB Garamond',serif;font-size:38px;line-height:1.6;color:var(--light);white-space:pre-line;max-width:900px;"></div>
-  <div style="position:absolute;bottom:0;left:0;right:0;display:flex;">
-    <div onclick="projSongStep(-1);syncSongFullscreenHere()" style="flex:1;height:90px;"></div>
-    <div onclick="projSongStep(1);syncSongFullscreenHere()" style="flex:1;height:90px;"></div>
+<div id="song-fullscreen-view" style="display:none;position:fixed;inset:0;z-index:99996;background:#000000;flex-direction:column;">
+  <div style="border-bottom:1px solid rgba(255,255,255,.25);padding:14px 20px;text-align:center;position:relative;">
+    <div id="sfv-title" style="font-family:'Cinzel',serif;font-size:18px;color:#fff;letter-spacing:1px;"></div>
+    <button onclick="closeSongFullscreenHere()" style="position:absolute;top:8px;right:12px;background:transparent;color:rgba(255,255,255,.4);border:none;font-size:20px;line-height:1;">✕</button>
   </div>
-  <div style="position:absolute;bottom:14px;left:0;right:0;display:flex;justify-content:space-between;padding:0 30px;pointer-events:none;color:rgba(201,168,76,.4);font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;">
-    <span>◀ NYUMA</span><span>MBELE ▶</span>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:30px;position:relative;">
+    <div id="sfv-text" style="font-family:'EB Garamond',serif;font-weight:600;font-size:40px;line-height:1.7;color:#fff;white-space:pre-line;max-width:1000px;text-align:center;"></div>
+    <div onclick="projSongStep(-1);syncSongFullscreenHere()" style="position:absolute;top:0;bottom:0;left:0;width:35%;"></div>
+    <div onclick="projSongStep(1);syncSongFullscreenHere()" style="position:absolute;top:0;bottom:0;right:0;width:35%;"></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;padding:12px 20px;border-top:1px solid rgba(255,255,255,.25);">
+    <div id="sfv-songnum" style="color:rgba(255,255,255,.65);font-size:14px;"></div>
+    <div id="sfv-label" style="color:rgba(255,255,255,.65);font-size:14px;"></div>
   </div>
 </div>
 
@@ -3211,10 +3232,14 @@ function initProjectorView(){
 
 <div id="projector-view">
   <button id="proj-fs-btn" onclick="toggleProjectorFullscreen()" style="position:absolute;top:20px;right:20px;background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.4);border-radius:8px;padding:10px 16px;font-family:'Cinzel',serif;font-size:12px;letter-spacing:1px;cursor:pointer;z-index:10;">⛶ FULL SCREEN</button>
-  <div class="proj-logo">✝ SHALOM TABERNACLE ✝</div>
+  <div class="proj-logo" id="proj-logo">✝ SHALOM TABERNACLE ✝</div>
   <div class="proj-name" id="proj-name"></div>
   <div class="proj-text" id="proj-text">Karibu — Mafundisho ya Kati ya Wiki</div>
   <div id="projector-jitsi"></div>
+  <div id="proj-song-bar" style="display:none;position:absolute;bottom:0;left:0;right:0;padding:16px 30px;justify-content:space-between;border-top:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);font-size:16px;">
+    <div id="proj-song-num"></div>
+    <div id="proj-song-label"></div>
+  </div>
 </div>
 
 <script>
