@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
-<meta name="app-version" id="app-version-tag" content="2026.08.08-1"/>
+<meta name="app-version" id="app-version-tag" content="2026.08.08-5"/>
 <title>Shalom Tabernacle Churchtz</title>
 
   <link rel="manifest" href="manifest.json">
@@ -487,7 +487,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 #projector-view.open{display:flex;}
 .proj-logo{font-family:'Cinzel Decorative',serif;font-size:28px;color:var(--gold);letter-spacing:2px;margin-bottom:40px;opacity:.85;}
 .proj-name{font-family:'Cinzel',serif;font-size:22px;color:var(--gold2);margin-bottom:24px;letter-spacing:1px;}
-.proj-text{font-family:'EB Garamond',serif;font-size:48px;line-height:1.5;color:var(--light);max-width:1100px;white-space:pre-line;}
+.proj-text{font-family:'EB Garamond',serif;font-size:48px;line-height:1.5;color:var(--light);max-width:1100px;white-space:pre-line;text-align:left;}
 #projector-jitsi{width:90vw;height:85vh;border-radius:16px;overflow:hidden;display:none;}
 
 .fs-header{
@@ -719,9 +719,10 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 <!-- HYMNS -->
 <div id="tab-hymns" class="tab-panel">
   <div id="hymn-list-view">
-    <div class="sec-title">📖 Nyimbo Za Ufufuo</div>
-    <div class="section-sub">Revival Song Book — Nyimbo 38</div>
+    <div class="sec-title" id="hymn-book-title">📖 Nyimbo Za Ufufuo</div>
+    <div class="section-sub" id="hymn-book-sub">Revival Song Book</div>
     <div class="sec-div"></div>
+    <div id="hymn-book-tabs" style="display:flex;gap:8px;margin-bottom:14px;"></div>
     <input class="hymn-search" type="text" placeholder="🔍 Tafuta wimbo..." oninput="filterHymns(this.value)"/>
     <div id="hymn-cat-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;"></div>
     <div id="hymn-list"></div>
@@ -1184,6 +1185,8 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
         <input class="admin-input" id="hy-num" type="number" placeholder="Namba ya wimbo"/>
         <input class="admin-input" id="hy-name" placeholder="Jina la wimbo..."/>
         <input class="admin-input" id="hy-cat" placeholder="Kundi (mfano: Imani, Shukrani)..."/>
+        <input class="admin-input" id="hy-book" placeholder="Kitabu (mfano: Nyimbo Za Ufufuo, Mixed Songs)..." list="hy-book-list"/>
+        <datalist id="hy-book-list"></datalist>
         <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:rgba(245,240,232,.75);margin-bottom:12px;cursor:pointer;">
           <input type="checkbox" id="hy-repeat-chorus" checked style="width:16px;height:16px;accent-color:var(--gold);"/>
           🔁 Kiitikio kirudie baada ya kila ubeti (huhitaji kukiweka wewe mwenyewe kati ya kila ubeti)
@@ -1666,6 +1669,98 @@ const HYMNS = [
     {type:"verse",label:"Ubeti 4",lines:"Nikishikwa na ugonjwa.\nAtaniinua;\nKifo nikikaribia\nAtaniongoza."},
     {type:"verse",label:"Ubeti 5",lines:"Yesu ni Rafiki Mwema,\nHumu duniani;\nYeye atanichukua\nMpaka mbinguni."},
   ]},
+  { num:44, name:"Aamenichagua Mimi Toka Enzi", cat:"—", book:"Mixed Songs", lyrics:[
+    {type:"verse",label:"Ubeti 1",lines:"AAMENICHAGUA MIMI TOKA ENZI\nAKANITENGA NA ULIMWENGU\nMIMI NI WAKE\nBWANA NINAJUA KWAMBA UNANIPENDA"},
+  ]},
+  { num:45, name:"Asiyejua Kwamba Yesu Ni Mungu", cat:"—", book:"Mixed Songs", lyrics:[
+    {type:"verse",label:"Ubeti 1",lines:"ASIYEJUA KWAMBA YESU NI MUNGU AJE NIMWONYESHE"},
+  ]},
+  { num:46, name:"Iwe Furaha Imekuwa Shangwe", cat:"—", book:"Mixed Songs", lyrics:[
+    {type:"verse",label:"Ubeti 1",lines:"IWE FURAHA IMEKUWA SHANGWE"},
+  ]},
+  { num:47, name:"Ninaye Rafiki", cat:"—", book:"Mixed Songs", lyrics:[
+    {type:"verse",label:"Ubeti 1",lines:"Ninaye Rafiki naye Alinipenda mbele;\nKwa kamba za pendo zake Nimefungwa milele;\nAukaza moyo wangu,Uache mageule,\nMimi wake, yeye wangu;Ndimi naye milele."},
+    {type:"verse",label:"Ubeti 2",lines:"Ninaye rafiki ndiye Aliyenifilia;\nAlimwaga damu yake Kwa watu wote pia;\nSina kitu mimi tena,Nikiwa navyo tele;\nPia vyote ni amana Ndimi wake milele."},
+    {type:"verse",label:"Ubeti 3",lines:"Ninaye rafiki naye Uwezo amepewa;\nAtanilinda mwenyewe,Juu tachukuliwa;\nNikitazama Mbinguni,Hupata nguvu tele;\nSasa natumika chini, Kisha juu milele."},
+  ]},
+  { num:48, name:"Heri Kuwa Na Bwana Yesu", cat:"—", book:"Mixed Songs", lyrics:[
+    {type:"verse",label:"Ubeti 1",lines:"HERI KUWA NA BWANA YESU,\nMAMBO YOTE YATAPITA"},
+  ]},
+  { num:49, name:"Ameni Haleluya", cat:"—", book:"Mixed Songs", lyrics:[
+    {type:"verse",label:"Ubeti 1",lines:"AMENI HALELUYA\nAMENI HALELUYA\nAMENI HALELUYA\nHOOO SANA"},
+  ]},
+  { num:50, name:"Huniongoza Mwokozi", cat:"Injili", book:"Mixed Songs", lyrics:[
+    {type:"verse",label:"Ubeti 1",lines:"Huniongoza Mwokozi,\nNdipo nami hufurahi,\nNiendapo pote napo,\nAnaniongoza papo."},
+    {type:"chorus",label:"Kiitikio",lines:"KUONGOZA HUNISHIKA\nKWA MKONO WA HAKIKA\nNINAANDA MANA NAYE\nKRISTO ANIONGOZAYE"},
+    {type:"verse",label:"Ubeti 2",lines:"Pengine ni Matesoni\nNami pengine rahani;\nNi radhi, ijayo yote,\nYupo nami siku zote."},
+    {type:"verse",label:"Ubeti 3",lines:"Mkono amenishika\nKamwe sitanung'unika:\nAnaayoniiiletea\nNi tayari kupokea."},
+    {type:"verse",label:"Ubeti 4",lines:"Kaziiii ikiisha chini\nNakwenda huko mbinguni,\nNako nitamtukuza\nKristo aliyeongoza."},
+  ]},
+  { num:51, name:"Sio Mbali Na Nyumbani", cat:"—", book:"Mixed Songs", lyrics:[
+    {type:"verse",label:"Ubeti 1",lines:"Sio mbali na nyumbani\nFikira tamu njiani\nLatupoza roho nalo,\nLa futa machozi"},
+    {type:"chorus",label:"Kiitikio",lines:"Usiudhunike tena,\nKitambo tutakutana\nKwenye furaha kamili\nNyumbani mwa Baba"},
+    {type:"verse",label:"Ubeti 2",lines:"Sio mbali na nyumbani\nKaribu tutawasili\nPenye amani ya kweli\nDaima milele"},
+    {type:"verse",label:"Ubeti 3",lines:"Sio mbali na nyumbani\nKaribu tuta wasili\nTukapumzike kwetu\nMilele na Bwana"},
+  ]},
+  { num:52, name:"Kipo Kijito Cha Damu Ya Yesu", cat:"—", repeatChorus:false, book:"Mixed Songs", lyrics:[
+    {type:"verse",label:"Ubeti 1",lines:"Kipo kijito cha damu ya Yesu,\nMwokozi wetu,\nKioshacho wakosaji,\nDhambi na uchafu,"},
+    {type:"chorus",label:"Kiitikio",lines:"DHAMBI NA UCHAFU\nDHAMBI NA UCHAFU\nKIOSHACHO WAKOSAJI\nDHAMBI NA UCHAFU"},
+    {type:"verse",label:"Ubeti 2",lines:"M-salabani mnyang'anyi,\nAlikiona kisima,\nNami niliye dhaifu,\nNitakaswe pia,"},
+    {type:"chorus",label:"Kiitikio",lines:"NITAKASWE PIA\nNITAKASWE PIA\nHATA MIMI NI M'NYONGE\nNAMI NITAKASWE"},
+    {type:"verse",label:"Ubeti 3",lines:"Ee Mwokozi damu Yako,\nSiku zote ina nguvu,\nKuokoa wenye dhambi,\nMataifa yote,"},
+    {type:"chorus",label:"Kiitikio",lines:"MATAIFA YOTE\nMATAIFA YOTE\nKUOKOA WENYE DHAMBI\nMATAIFA YOTE"},
+    {type:"verse",label:"Ubeti 4",lines:"Kijito hicho cha ajabu,\nTumaini langu jema\nUpendo wako nasifu,\nNausifu sana,"},
+    {type:"chorus",label:"Kiitikio",lines:"NAUSIFU SANA\nNAUSIFU SANA\nUPENDO WAKO NASIFU\nNAUSIFU SANA"},
+    {type:"verse",label:"Ubeti 5",lines:"Nimekuamini Bwana,\nKwani ulinifilia.\nMaisha uliyatoa,\nKwa ajili yangu,"},
+    {type:"chorus",label:"Kiitikio",lines:"KWA AJILI YANGU\nKWA AJILI YANGU\nMAISHA ULIYATOA\nKWA AJILI YANGU"},
+  ]},
+  { num:91, name:"Yesu, Jina Hili Jema", cat:"Wokovu", book:"Mixed Songs", lyrics:[
+    {type:"verse",label:"Ubeti 1",lines:"Yesu, jina hili jema\nLichukue daima!\nLina raha na faraja\nUwe nalo po pote!"},
+    {type:"chorus",label:"Kiitikio",lines:"JINA LA MWOKOZI,\nLINA MATUMAINI\nJINA LA MWOKOZI\nJINA HILO NI YESU"},
+    {type:"verse",label:"Ubeti 2",lines:"Lichukue jina hilo\nLenye nguvu kushinda!\nUkijaribiwa huku\nTaja jina la Yesu!"},
+    {type:"verse",label:"Ubeti 3",lines:"Yesu, Jina jema sana,\nLatutia shangwe kuu;\nKimbilio tena ngome,\nM-saada kwa wote."},
+    {type:"verse",label:"Ubeti 4",lines:"Kila goti litapigwa,\nMbele ya Bwana Yesu,\nWatu wote watakiri,\nKwamba Yesu ni Bwana."},
+  ]},
+  { num:53, name:"Sifa Na Shukrani Astahili Mwana-Kondoo", cat:"—", book:"Mixed Songs", lyrics:[
+    {type:"verse",label:"Ubeti 1",lines:"Tangazo Nimeshuka Kutoka\nkwa Baba Mbinguni\nYakuwa Muhuri ule\nwa Saba Umefunguliwa\nWaliyofichwa umo\nwao wamejiona,\nMajina wamesoma\nsasa wapo na Jubile\nSifa na Shukrani\nAstahili Mwana-Kondoo"},
+    {type:"chorus",label:"Kiitikio",lines:"NDUGU JITAKASE DADA JITAKASE\nMUDA WA SEKUNDE TUTAVAA KUTOARIBIKA\nYESU AMESHUKA KAMA MWIVI ILITUONDOKE\nSIFA NA SHUKRANI ASTAHILI MWANA-KONDOO"},
+    {type:"verse",label:"Ubeti 2",lines:"Sasa Niwakati\nWa Samsoni Kuuwa wengi\nMaana Vishungi\nvimeota na Nguvu mpya,\nBaragumu Imepigwa\nSisi ni Amina\nKuta wa Yeriko Uwanguke Tuitwae Nchi\nSifa na Shukrani Astahili Mwana-Kondoo"},
+    {type:"verse",label:"Ubeti 3",lines:"Mungu Atukuzwe\nKutujalia wahudumu Ambao Ndani Yao\nMacho Saba Yanasoma UJUMBE\nAmewapa Upako wa SIMBA Na NDAMA pia wa SURA ya MWANADAMU\nna ile ya TAI\nSifa na Shukrani Astahili Mwana-Kondoo"},
+  ]},
+  { num:144, name:"Tumeni Nuru Ya Injili", cat:"Waaminio", repeatChorus:false, book:"Mixed Songs", lyrics:[
+    {type:"verse",label:"Ubeti 1",lines:"1. Twasikia Mwito Kutoka Mbali\nTUMENI, TUMENI\nRoho Za watu Na ziokolewe\nTUMENI, TUMENI"},
+    {type:"chorus",label:"Kiitikio",lines:"TUMENI NURU YA UJUMBE\nING'AE DUNIANI\nTUMENI NURU YA UJUMBE\nING'AE DUNIANI"},
+    {type:"verse",label:"Ubeti 2",lines:"2. Tumeitwa Kueneza UJUMBE\nTUMENI, TUMENI\nSadaka Twazieka msalabani\nTUMENI, TUMENI"},
+    {type:"verse",label:"Ubeti 3",lines:"3. Na Tuombe Neema iendeshwe\nTUMENI, TUMENI\nNa Roho wa Kristo Aonekane\nTUMENI, TUMENI"},
+    {type:"verse",label:"Ubeti 4",lines:"4. Tusichoke kazini mwa upendo\nTUMENI, TUMENI\nTaji Ya uzima tupate Mwishoni\nTUMENI, TUMENI"},
+  ]},
+  { num:54, name:"Msalaba Wako Yesu", cat:"—", book:"Mixed Songs", lyrics:[
+    {type:"verse",label:"Ubeti 1",lines:"Yesu nione Tena msalaba wako\nUo Ni kisima safi chenye kusafisha"},
+    {type:"chorus",label:"Kiitikio",lines:"MSALABA WAKO YESU\nNAUSIFU SANA"},
+    {type:"verse",label:"Ubeti 2",lines:"YESU UNILINDE UKO HATA NIKUONE\nUko Niliona kwanza Neema yako Kubwa\nNuru ikafika kwangu toka Msalaba"},
+    {type:"verse",label:"Ubeti 3",lines:"Yesu Ulininde Uko unifahamishe,\nJinsi ulivyochukua dhambi zangu zote"},
+    {type:"verse",label:"Ubeti 4",lines:"Unilinde Siku Zote Penye Msalaba\nNikupende Siku Zote\nSasa na Milele"},
+  ]},
+  { num:55, name:"Siku Nyingi Nilifanya Dhambi", cat:"—", book:"Mixed Songs", lyrics:[
+    {type:"verse",label:"Ubeti 1",lines:"Siku nyingi nilifanya dhambi\nSikujua NENO la mwokozi\nSikujua damu yake BWANA\nKwa kalvari"},
+    {type:"chorus",label:"Kiitikio",lines:"BWANA Yesu alinirehemu\nDhambi zangu alizisamehe\nNilipata kuwa huru kweli\nKwa kalvari."},
+    {type:"verse",label:"Ubeti 2",lines:"Niliposikia Neno lake\nMoyo wangu ukalia sana\nNikakiri dhambi zangu zote\nKwa kalvari"},
+    {type:"verse",label:"Ubeti 3",lines:"Sasa Yesu ni Mfalme wangu\nAnanitawala milele\nRoho yangu inaimba sifa\nKwa kalvari."},
+    {type:"verse",label:"Ubeti 4",lines:"Ni upendo gani wa mwokozi\nNi rehema yake kubwa kwetu\nTulipatanishwa naye MUNGU\nKwa kalvari"},
+  ]},
+  { num:56, name:"Upendo Wake Yesu", cat:"—", book:"Mixed Songs", lyrics:[
+    {type:"verse",label:"Ubeti 1",lines:"Upendo wake Yesu mimi wanishangaza,\nNikifikiri sipati jibu,\nAlivyoteswateswa, akasulubiwa,\nIli kusudi anipate mimi."},
+    {type:"chorus",label:"Kiitikio",lines:"Nimefanya nini mimi\nAu nimefanya kipi chema\nNikiangalia sijafanya lolote\nBali amenipenda bure"},
+    {type:"verse",label:"Ubeti 2",lines:"Bado nikakosea katika madhehebu\nKanitumia mjumbe na ujumbe\nIli anirudishe katika Neno lake\nIli na mimi nifanyike Neno"},
+    {type:"verse",label:"Ubeti 3",lines:"Nimefanyika Neno, yeye yu ndani yangu\nNinaishi naye milele\nMimi ninafurahi ninashangilia\nMilele hata milele"},
+  ]},
+  { num:57, name:"Yesu Ni Wimbo", cat:"—", book:"Mixed Songs", lyrics:[
+    {type:"verse",label:"Ubeti 1",lines:"Yesu ni wimbo na raha yangu\nNinamsifu hata milele\nNa nimemuona kwa Neno lake\nYeesu ni wangu na mimi wake"},
+    {type:"chorus",label:"Kiitikio",lines:"Yesu ni wimbo na raha yangu\nYesu ni wimbo wa moyo wangu\nYesu ni wimbo wa moyo wang\nYeesu ni wangu na mimi wake"},
+    {type:"verse",label:"Ubeti 2",lines:"Nimejitoa kwa BWANA Yesu\nNa nimepewa wokovu wake\nNina furaha moyoni mwangu\nKuwa na Neno ni uzima wangu"},
+    {type:"verse",label:"Ubeti 3",lines:"Sasa naweza kumsifu Yesu\nNa roho yangu inafurahi\nKwa neema yake maishani mwangu\nYote ni heri namshukuru"},
+    {type:"verse",label:"Ubeti 4",lines:"Nimebatizwa katika ROHO\nShangwe ya mbingu imo rohoni\nMoto moyoni pia kinywani\nNashuhudia pendo la MUNGU"},
+  ]},
 ];
 
 const MEDIA_ICONS = {'special':'🎤','audio-preach':'🎙️','video-preach':'📹','sifa':'🙌'};
@@ -1702,6 +1797,28 @@ function goTab(id,navIdx){
 // ---- HYMNS DATA ----
 
 
+// ---- VITABU VYA NYIMBO (mfano: "Nyimbo Za Ufufuo" na "Mixed Songs") ----
+const DEFAULT_BOOK = 'Nyimbo Za Ufufuo';
+function hymnBook(h){ return h.book || DEFAULT_BOOK; }
+let currentHymnBook = DEFAULT_BOOK;
+function hymnsInCurrentBook(){ return HYMNS.filter(h=>hymnBook(h)===currentHymnBook); }
+function renderHymnBookTabs(){
+  const el = document.getElementById('hymn-book-tabs');
+  if(!el) return;
+  const books = [...new Set(HYMNS.map(hymnBook))];
+  if(!books.includes(currentHymnBook)) currentHymnBook = books[0] || DEFAULT_BOOK;
+  el.innerHTML = books.map(b=>`<button class="admin-btn" style="flex:1;padding:9px 10px;font-size:11px;background:${b===currentHymnBook?'rgba(201,168,76,.25)':'rgba(201,168,76,.08)'};color:var(--gold);border:1px solid rgba(201,168,76,.3);" onclick="switchHymnBook('${b.replace(/'/g,"\\'")}')">📖 ${b}</button>`).join('');
+  document.getElementById('hymn-book-title').textContent = '📖 '+currentHymnBook;
+  document.getElementById('hymn-book-sub').textContent = currentHymnBook===DEFAULT_BOOK ? 'Revival Song Book' : currentHymnBook;
+  const dl = document.getElementById('hy-book-list');
+  if(dl) dl.innerHTML = books.map(b=>`<option value="${b}"></option>`).join('');
+}
+function switchHymnBook(book){
+  currentHymnBook = book;
+  renderHymnBookTabs();
+  renderHymnCatChips();
+  renderHymns(hymnsInCurrentBook());
+}
 function renderHymns(list){
   const c=document.getElementById('hymn-list');
   if(!c)return;
@@ -1717,18 +1834,21 @@ function renderHymns(list){
 function renderHymnCatChips(){
   const el = document.getElementById('hymn-cat-chips');
   if(!el) return;
-  const cats = [...new Set(HYMNS.map(h=>h.cat).filter(c=>c && c!=='—'))].sort();
+  const inBook = hymnsInCurrentBook();
+  const cats = [...new Set(inBook.map(h=>h.cat).filter(c=>c && c!=='—'))].sort();
   const chips = ['Zote', ...cats];
   el.innerHTML = chips.map(c=>`<button class="admin-btn" data-cat="${c}" style="padding:6px 12px;font-size:10.5px;background:${c==='Zote'?'rgba(201,168,76,.25)':'rgba(201,168,76,.1)'};color:var(--gold);border:1px solid rgba(201,168,76,.3);" onclick="filterByCategory('${c}',this)">${c}</button>`).join('');
+  renderHymns(inBook);
 }
 function filterByCategory(cat,btn){
   document.querySelectorAll('#hymn-cat-chips .admin-btn').forEach(b=>b.style.background='rgba(201,168,76,.1)');
   if(btn) btn.style.background='rgba(201,168,76,.25)';
-  renderHymns(cat==='Zote' ? HYMNS : HYMNS.filter(h=>h.cat===cat));
+  const inBook = hymnsInCurrentBook();
+  renderHymns(cat==='Zote' ? inBook : inBook.filter(h=>h.cat===cat));
 }
 function filterHymns(q){
   const query = q.toLowerCase();
-  renderHymns(HYMNS.filter(h=>
+  renderHymns(hymnsInCurrentBook().filter(h=>
     h.name.toLowerCase().includes(query) ||
     h.cat.toLowerCase().includes(query) ||
     String(h.num).includes(query) ||
@@ -1776,10 +1896,15 @@ function toggleHymnSettings(){
   b.classList.toggle('open');
   document.querySelector('.hymn-settings-toggle').textContent=b.classList.contains('open')?'▲ Funga':'▼ Badilisha';
 }
+function projFontSize(){ return Math.round(40 * (hymnFontSize/16)); }
 function changeFontSize(d){
   hymnFontSize=Math.min(32,Math.max(11,hymnFontSize+d));
   document.getElementById('hymn-content').style.fontSize=hymnFontSize+'px';
   document.getElementById('font-size-val').textContent=hymnFontSize+'px';
+  // Sasisha pia ukubwa wa maandishi kwenye Projector (PC) na Onyesho Kamili la simu hii
+  if(CURRENT_HYMN && document.getElementById('proj-control-bar').style.display!=='none'){
+    pushSongSlide();
+  }
 }
 function setTheme(t,btn){
   const w=document.getElementById('hymn-reader-wrap');
@@ -2187,7 +2312,7 @@ function initApp(){
     const saved=memLoad('song_audio')||{};
     Object.keys(saved).forEach(num=>{const s=SONGS_AUDIO.find(x=>x.num===parseInt(num));if(s){s.yt=saved[num].yt||null;s.mp3=saved[num].mp3||null;}});
   }catch(e){}
-  renderHymns(HYMNS); renderHymnCatChips();
+  renderHymnBookTabs(); renderHymnCatChips();
   renderSongs(SONGS_AUDIO);
   populateQuickSelect();
   renderDynamicSermons();
@@ -2729,7 +2854,8 @@ function saveHymn(){
   }).filter(b=>b.lines);
   if(lyrics.length===0){ alert('Jaza maneno ya angalau kipande kimoja.'); return; }
 
-  const hymn = {num, name, cat, repeatChorus: document.getElementById('hy-repeat-chorus').checked, lyrics};
+  const book = document.getElementById('hy-book').value.trim() || currentHymnBook || DEFAULT_BOOK;
+  const hymn = {num, name, cat, book, repeatChorus: document.getElementById('hy-repeat-chorus').checked, lyrics};
   saveHymnToFirebase(hymn, true);
 }
 function saveHymnToFirebase(hymn, isNewSubmit){
@@ -2741,13 +2867,13 @@ function saveHymnToFirebase(hymn, isNewSubmit){
     if(existingIdx>=0) HYMNS[existingIdx]=hymn; else HYMNS.push(hymn);
     HYMNS.sort((a,b)=>a.num-b.num);
     CUSTOM_HYMN_NUMS.add(hymn.num);
-    renderHymns(HYMNS); renderHymnCatChips();
+    renderHymnBookTabs(); renderHymnCatChips();
     renderHymnAdminList();
     removePendingHymn(hymn.num);
     if(isNewSubmit){
       document.getElementById('hy-num').value='';
       document.getElementById('hy-name').value='';
-      document.getElementById('hy-cat').value='';
+      document.getElementById('hy-cat').value=''; document.getElementById('hy-book').value='';
       document.getElementById('hy-blocks').innerHTML='';
       showSuccess('hy-success');
     }
@@ -2759,12 +2885,12 @@ function saveHymnToFirebase(hymn, isNewSubmit){
     if(existingIdx>=0) HYMNS[existingIdx]=hymn; else HYMNS.push(hymn);
     HYMNS.sort((a,b)=>a.num-b.num);
     CUSTOM_HYMN_NUMS.add(hymn.num);
-    renderHymns(HYMNS); renderHymnCatChips();
+    renderHymnBookTabs(); renderHymnCatChips();
     renderHymnAdminList();
     if(isNewSubmit){
       document.getElementById('hy-num').value='';
       document.getElementById('hy-name').value='';
-      document.getElementById('hy-cat').value='';
+      document.getElementById('hy-cat').value=''; document.getElementById('hy-book').value='';
       document.getElementById('hy-blocks').innerHTML='';
     }
     alert('⚠️ Mtandao ni dhaifu sasa hivi. Wimbo umehifadhiwa kwenye simu yako na unaonekana tayari — utatumwa mtandaoni (kwa wengine wote) kiotomatiki mara mtandao utakapoimarika.');
@@ -2802,7 +2928,7 @@ function loadCustomHymns(){
       if(idx>=0) HYMNS[idx]=h; else HYMNS.push(h);
     });
     HYMNS.sort((a,b)=>a.num-b.num);
-    renderHymns(HYMNS); renderHymnCatChips();
+    renderHymnBookTabs(); renderHymnCatChips();
     renderHymnAdminList();
   }).catch(()=>{});
 }
@@ -2849,7 +2975,7 @@ function deleteCustomHymn(num){
     CUSTOM_HYMN_NUMS.delete(num);
     const idx = HYMNS.findIndex(h=>h.num===num);
     if(idx>=0) HYMNS.splice(idx,1);
-    renderHymns(HYMNS); renderHymnCatChips();
+    renderHymnBookTabs(); renderHymnCatChips();
     renderHymnAdminList();
   });
 }
@@ -3104,7 +3230,7 @@ function pushSongSlide(){
   document.getElementById('proj-slide-count').textContent = (projSongIdx+1)+'/'+seq.length;
   fetch(FB_BASE + '/qna/current.json', {
     method:'PUT',
-    body: JSON.stringify({ type:'song', text: block.lines, songName: CURRENT_HYMN.name, songNum: CURRENT_HYMN.num, label: block.label, ts:Date.now() })
+    body: JSON.stringify({ type:'song', text: block.lines, songName: CURRENT_HYMN.name, songNum: CURRENT_HYMN.num, label: block.label, fontSize: projFontSize(), ts:Date.now() })
   });
   syncSongFullscreenHere();
 }
@@ -3116,6 +3242,7 @@ function syncSongFullscreenHere(){
   if(!block) return;
   document.getElementById('sfv-title').textContent = CURRENT_HYMN.name;
   document.getElementById('sfv-text').textContent = block.lines;
+  document.getElementById('sfv-text').style.fontSize = projFontSize()+'px';
   document.getElementById('sfv-songnum').textContent = 'Wimbo #'+CURRENT_HYMN.num;
   document.getElementById('sfv-label').textContent = block.label;
 }
@@ -3146,6 +3273,8 @@ function initProjectorView(){
       document.getElementById('projector-view').style.background='';
       document.getElementById('proj-name').textContent = '';
       document.getElementById('proj-text').style.display='block';
+      document.getElementById('proj-text').style.fontSize='';
+      document.getElementById('proj-text').style.textAlign='';
       document.getElementById('proj-text').textContent = 'Karibu — Mafundisho ya Kati ya Wiki';
       document.getElementById('projector-jitsi').style.display='none';
       if(projectorApi){ projectorApi.dispose(); projectorApi=null; }
@@ -3157,6 +3286,8 @@ function initProjectorView(){
       if(projectorApi){ projectorApi.dispose(); projectorApi=null; }
       document.getElementById('proj-name').textContent = data.name||'';
       document.getElementById('proj-text').style.display='block';
+      document.getElementById('proj-text').style.fontSize='';
+      document.getElementById('proj-text').style.textAlign='';
       document.getElementById('proj-text').textContent = data.text||'';
     } else if(data.type==='song'){
       document.getElementById('proj-logo').style.display='none';
@@ -3165,7 +3296,9 @@ function initProjectorView(){
       if(projectorApi){ projectorApi.dispose(); projectorApi=null; }
       document.getElementById('proj-name').textContent = data.songName||'';
       document.getElementById('proj-text').style.display='block';
+      document.getElementById('proj-text').style.textAlign='left';
       document.getElementById('proj-text').textContent = data.text||'';
+      document.getElementById('proj-text').style.fontSize = (data.fontSize||48)+'px';
       document.getElementById('proj-song-bar').style.display='flex';
       document.getElementById('proj-song-num').textContent = data.songNum ? ('Wimbo #'+data.songNum) : '';
       document.getElementById('proj-song-label').textContent = data.label || '';
@@ -3209,7 +3342,7 @@ function initProjectorView(){
     <button onclick="closeSongFullscreenHere()" style="position:absolute;top:8px;right:12px;background:transparent;color:rgba(255,255,255,.4);border:none;font-size:20px;line-height:1;">✕</button>
   </div>
   <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:30px;position:relative;">
-    <div id="sfv-text" style="font-family:'EB Garamond',serif;font-weight:600;font-size:40px;line-height:1.7;color:#fff;white-space:pre-line;max-width:1000px;text-align:center;"></div>
+    <div id="sfv-text" style="font-family:'EB Garamond',serif;font-weight:600;font-size:40px;line-height:1.7;color:#fff;white-space:pre-line;max-width:1000px;text-align:left;"></div>
     <div onclick="projSongStep(-1);syncSongFullscreenHere()" style="position:absolute;top:0;bottom:0;left:0;width:35%;"></div>
     <div onclick="projSongStep(1);syncSongFullscreenHere()" style="position:absolute;top:0;bottom:0;right:0;width:35%;"></div>
   </div>
