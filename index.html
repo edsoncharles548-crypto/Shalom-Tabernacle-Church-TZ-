@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
-<meta name="app-version" id="app-version-tag" content="2026.08.08-5"/>
+<meta name="app-version" id="app-version-tag" content="2026.08.08-6"/>
 <title>Shalom Tabernacle Churchtz</title>
 
   <link rel="manifest" href="manifest.json">
@@ -1191,6 +1191,14 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
           <input type="checkbox" id="hy-repeat-chorus" checked style="width:16px;height:16px;accent-color:var(--gold);"/>
           🔁 Kiitikio kirudie baada ya kila ubeti (huhitaji kukiweka wewe mwenyewe kati ya kila ubeti)
         </label>
+
+        <div style="background:rgba(46,134,222,.1);border:1px solid rgba(46,134,222,.3);border-radius:10px;padding:12px;margin-bottom:14px;">
+          <div style="font-size:11.5px;color:#7EB6F5;margin-bottom:8px;font-weight:600;">📋 Bandika Wimbo Mzima Hapa (Chambua Kiotomatiki)</div>
+          <div style="font-size:10.5px;color:rgba(245,240,232,.45);margin-bottom:8px;line-height:1.6;">Copy-paste maneno yote ya wimbo (kutoka Word au sehemu nyingine) hapa chini, kisha bonyeza kitufe — app itagundua yenyewe Ubeti na Kiitikio, na kujaza vipande chini. Tenganisha kila ubeti/kiitikio kwa mstari mmoja mtupu.</div>
+          <textarea class="admin-input" id="hy-paste-box" style="height:140px;resize:vertical;margin-bottom:8px;" placeholder="Bandika hapa maneno yote ya wimbo..."></textarea>
+          <button class="admin-btn" style="width:100%;background:rgba(46,134,222,.25);color:#7EB6F5;" onclick="autoParseAndFillBlocks()">🪄 Chambua na Jaza Vipande Kiotomatiki</button>
+        </div>
+
         <div id="hy-blocks"></div>
         <div style="display:flex;gap:8px;margin-bottom:12px;">
           <button class="admin-btn" style="background:rgba(201,168,76,.15);color:var(--gold);flex:1;" onclick="addHymnBlock('verse')">➕ Ongeza Ubeti</button>
@@ -2821,6 +2829,41 @@ function openProjectorWindow(){
 
 // ---- ONGEZA WIMBO (Admin) — Firebase Realtime Database ----
 let hyBlockCount = 0;
+// ---- CHAMBUA WIMBO KIOTOMATIKI (kutoka bandiko/paste) ----
+function autoParseSong(text){
+  // gawanya kwa mstari mtupu (blank line) kuwa vipande
+  const rawBlocks = text.split(/\r?\n\s*\r?\n+/).map(b=>b.trim()).filter(Boolean);
+  const seen = {};
+  const blocks = [];
+  rawBlocks.forEach(b=>{
+    const norm = b.replace(/\s+/g,' ').toLowerCase();
+    if(seen[norm] !== undefined){
+      // kipande hiki kimeshaonekana awali neno kwa neno -> hicho ndicho Kiitikio kinachojirudia
+      blocks[seen[norm]].type = 'chorus';
+      return; // usikiongeze tena (kizuia kurudiwa mara kadhaa)
+    }
+    seen[norm] = blocks.length;
+    const letters = b.replace(/[^a-zA-Z]/g,'');
+    const upper = b.replace(/[^A-Z]/g,'');
+    const isAllCaps = letters.length>4 && (upper.length/letters.length) > 0.75;
+    blocks.push({ text:b, type: isAllCaps ? 'chorus' : 'verse' });
+  });
+  return blocks;
+}
+function autoParseAndFillBlocks(){
+  const text = document.getElementById('hy-paste-box').value.trim();
+  if(!text){ alert('Bandika maneno ya wimbo kwanza.'); return; }
+  const blocks = autoParseSong(text);
+  if(blocks.length===0){ alert('Imeshindwa kutambua vipande. Hakikisha kuna mstari mtupu kati ya kila ubeti/kiitikio.'); return; }
+  document.getElementById('hy-blocks').innerHTML = '';
+  blocks.forEach(b=>{
+    addHymnBlock(b.type);
+    const rows = document.getElementById('hy-blocks').children;
+    rows[rows.length-1].querySelector('textarea').value = b.text;
+  });
+  const chorusCount = blocks.filter(b=>b.type==='chorus').length;
+  alert('✅ Vipande '+blocks.length+' vimejazwa ('+chorusCount+' kiitikio, '+(blocks.length-chorusCount)+' beti). Kagua chini kama ni sahihi, kisha jaza namba/jina/kitabu na Hifadhi.');
+}
 function addHymnBlock(type){
   hyBlockCount++;
   const id = 'hyb-'+hyBlockCount;
@@ -2873,7 +2916,7 @@ function saveHymnToFirebase(hymn, isNewSubmit){
     if(isNewSubmit){
       document.getElementById('hy-num').value='';
       document.getElementById('hy-name').value='';
-      document.getElementById('hy-cat').value=''; document.getElementById('hy-book').value='';
+      document.getElementById('hy-cat').value=''; document.getElementById('hy-book').value=''; document.getElementById('hy-paste-box').value='';
       document.getElementById('hy-blocks').innerHTML='';
       showSuccess('hy-success');
     }
@@ -2890,7 +2933,7 @@ function saveHymnToFirebase(hymn, isNewSubmit){
     if(isNewSubmit){
       document.getElementById('hy-num').value='';
       document.getElementById('hy-name').value='';
-      document.getElementById('hy-cat').value=''; document.getElementById('hy-book').value='';
+      document.getElementById('hy-cat').value=''; document.getElementById('hy-book').value=''; document.getElementById('hy-paste-box').value='';
       document.getElementById('hy-blocks').innerHTML='';
     }
     alert('⚠️ Mtandao ni dhaifu sasa hivi. Wimbo umehifadhiwa kwenye simu yako na unaonekana tayari — utatumwa mtandaoni (kwa wengine wote) kiotomatiki mara mtandao utakapoimarika.');
