@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
-<meta name="app-version" id="app-version-tag" content="2026.08.08-7"/>
+<meta name="app-version" id="app-version-tag" content="2026.08.08-8"/>
 <title>Shalom Tabernacle Churchtz</title>
 
   <link rel="manifest" href="manifest.json">
@@ -1078,6 +1078,14 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
       <div style="font-size:10.5px;color:#7EB6F5;">📦 Toleo la App: <b id="admin-version-display">—</b></div>
       <button class="admin-btn" style="background:rgba(46,134,222,.2);color:#7EB6F5;padding:6px 12px;font-size:9.5px;" onclick="forceAppUpdate()">🔄 Sasisha App Kabisa</button>
     </div>
+    <div style="background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.3);border-radius:10px;padding:12px;margin-bottom:14px;">
+      <div style="font-size:11px;color:var(--gold);font-weight:600;margin-bottom:8px;">🔑 Badilisha PIN ya Admin</div>
+      <input class="admin-input" type="password" id="pin-old" placeholder="PIN ya sasa" inputmode="numeric" style="margin-bottom:8px;"/>
+      <input class="admin-input" type="password" id="pin-new" placeholder="PIN mpya" inputmode="numeric" style="margin-bottom:8px;"/>
+      <input class="admin-input" type="password" id="pin-new-confirm" placeholder="Thibitisha PIN mpya" inputmode="numeric" style="margin-bottom:10px;"/>
+      <button class="admin-btn admin-btn-save" style="width:100%;" onclick="changeAdminPin()">🔑 Badilisha PIN</button>
+      <div class="admin-success" id="pin-change-success">✅ PIN imebadilishwa!</div>
+    </div>
     <div class="admin-tab-btns">
       <button class="admin-tab-btn active" onclick="switchAdminTab('mahubiri',this)">🎙️ Mahubiri</button>
       <button class="admin-tab-btn" onclick="switchAdminTab('videos',this)">🎬 Video</button>
@@ -1322,11 +1330,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 
 <script>
 // ---- CONSTANTS ----
-const PIN = '8861';
-
-const ADMIN_PIN = PIN;
-const GROUP_PIN = PIN;
-const WORSHIP_PIN = PIN; // PIN moja tu kila mahali (8861), kama ulivyoomba.
+let PIN = '8861'; // Chaguo-msingi — inaweza kubadilishwa na Admin (tazama Admin > Badilisha PIN). Inapakiwa upya kutoka Firebase kwenye initApp().
 const SUPABASE_URL = 'https://plxmjbscgyhkahisjgzc.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_7erIyzDiTVwL8HbyN9eBYg_RLfzWbuv';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -2033,6 +2037,24 @@ function populateQuickSelect(){
 }
 
 // ---- ADMIN ----
+function changeAdminPin(){
+  const oldPin = document.getElementById('pin-old').value;
+  const newPin = document.getElementById('pin-new').value;
+  const confirmPin = document.getElementById('pin-new-confirm').value;
+  if(oldPin !== PIN){ alert('❌ PIN ya sasa uliyoweka si sahihi.'); return; }
+  if(!newPin || newPin.length<4){ alert('Weka PIN mpya yenye angalau tarakimu 4.'); return; }
+  if(newPin !== confirmPin){ alert('❌ PIN mpya na uthibitisho hazifanani.'); return; }
+  fetch(FB_BASE + '/app_settings/pin.json', { method:'PUT', body: JSON.stringify(newPin) })
+    .then(()=>{
+      PIN = newPin;
+      document.getElementById('pin-old').value='';
+      document.getElementById('pin-new').value='';
+      document.getElementById('pin-new-confirm').value='';
+      showSuccess('pin-change-success');
+      alert('✅ PIN mpya imewekwa. Itumie hii kuanzia sasa (kwenye vifaa vingine itasasika mara vitakapokuwa na mtandao).');
+    })
+    .catch(()=>alert('Imeshindwa kuhifadhi PIN mpya. Angalia mtandao wako, kisha jaribu tena.'));
+}
 function checkPin(){
   if(document.getElementById('admin-pin').value===PIN){
     document.getElementById('admin-lock').style.display='none';
@@ -2333,6 +2355,7 @@ function initApp(){
   syncChurchDataFromFirebase();
 }
 function syncChurchDataFromFirebase(){
+  fetch(FB_BASE + '/app_settings/pin.json').then(r=>r.json()).then(p=>{ if(p) PIN = p; }).catch(()=>{});
   fetch(FB_BASE + '/church_data.json').then(r=>r.json()).then(data=>{
     if(!data) return;
     Object.keys(data).forEach(k=>{
@@ -3040,7 +3063,7 @@ let projSongIdx = 0;
 async function startSongProjection(){
   if(!CURRENT_HYMN) return;
   let pin = await askPin('Weka PIN kuanza kuproject (Admin au Kiongozi wa Nyimbo)');
-  while(pin!==null && pin!==PIN && pin!==WORSHIP_PIN){ pin = await askPin('❌ PIN si sahihi. Jaribu tena'); }
+  while(pin!==null && pin!==PIN){ pin = await askPin('❌ PIN si sahihi. Jaribu tena'); }
   if(pin===null) return;
   projSongIdx = 0;
   document.getElementById('proj-control-bar').style.display='block';
