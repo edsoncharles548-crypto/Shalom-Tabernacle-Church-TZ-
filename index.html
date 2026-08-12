@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
-<meta name="app-version" id="app-version-tag" content="2026.08.08-6"/>
+<meta name="app-version" id="app-version-tag" content="2026.08.08-7"/>
 <title>Shalom Tabernacle Churchtz</title>
 
   <link rel="manifest" href="manifest.json">
@@ -1194,7 +1194,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 
         <div style="background:rgba(46,134,222,.1);border:1px solid rgba(46,134,222,.3);border-radius:10px;padding:12px;margin-bottom:14px;">
           <div style="font-size:11.5px;color:#7EB6F5;margin-bottom:8px;font-weight:600;">📋 Bandika Wimbo Mzima Hapa (Chambua Kiotomatiki)</div>
-          <div style="font-size:10.5px;color:rgba(245,240,232,.45);margin-bottom:8px;line-height:1.6;">Copy-paste maneno yote ya wimbo (kutoka Word au sehemu nyingine) hapa chini, kisha bonyeza kitufe — app itagundua yenyewe Ubeti na Kiitikio, na kujaza vipande chini. Tenganisha kila ubeti/kiitikio kwa mstari mmoja mtupu.</div>
+          <div style="font-size:10.5px;color:rgba(245,240,232,.45);margin-bottom:8px;line-height:1.6;">Copy-paste maneno yote ya wimbo (kutoka Word au sehemu nyingine) hapa chini. Tenganisha kila ubeti/kiitikio kwa mstari mmoja mtupu, kisha bonyeza moja kwa moja "💾 Hifadhi Wimbo" chini — itachambua na kuhifadhi wote kwa mkupuo mmoja. (Ukitaka kukagua kwanza kabla ya kuhifadhi, unaweza pia kubonyeza kitufe hapa chini.)</div>
           <textarea class="admin-input" id="hy-paste-box" style="height:140px;resize:vertical;margin-bottom:8px;" placeholder="Bandika hapa maneno yote ya wimbo..."></textarea>
           <button class="admin-btn" style="width:100%;background:rgba(46,134,222,.25);color:#7EB6F5;" onclick="autoParseAndFillBlocks()">🪄 Chambua na Jaza Vipande Kiotomatiki</button>
         </div>
@@ -2884,8 +2884,19 @@ function saveHymn(){
   const name = document.getElementById('hy-name').value.trim();
   const cat = document.getElementById('hy-cat').value.trim() || '—';
   if(!num || !name){ alert('Weka namba na jina la wimbo.'); return; }
+  // Kama hujabonyeza 'Chambua' lakini umebandika maneno, chambua kiotomatiki sasa hivi
+  if(document.getElementById('hy-blocks').children.length===0){
+    const pasted = document.getElementById('hy-paste-box').value.trim();
+    if(pasted){
+      autoParseSong(pasted).forEach(b=>{
+        addHymnBlock(b.type);
+        const rows = document.getElementById('hy-blocks').children;
+        rows[rows.length-1].querySelector('textarea').value = b.text;
+      });
+    }
+  }
   const blockEls = [...document.getElementById('hy-blocks').children];
-  if(blockEls.length===0){ alert('Ongeza angalau kipande kimoja (Ubeti au Kiitikio).'); return; }
+  if(blockEls.length===0){ alert('Ongeza angalau kipande kimoja (Ubeti au Kiitikio), au bandika maneno ya wimbo kwenye sanduku la juu.'); return; }
   let verseN = 0;
   const lyrics = blockEls.map(el=>{
     const ta = el.querySelector('textarea');
