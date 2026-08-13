@@ -18,6 +18,9 @@
     <h1>🔑 Rudisha PIN ya Admin</h1>
     <p>Hii itarudisha PIN ya Shalom Tabernacle Church iwe <b>8861</b> tena, kwa kila mtu (Admin, Live, Kuproject Nyimbo).</p>
     <input type="password" id="master-code" placeholder="Msimbo wa Siri wa Kurejesha" style="width:100%;box-sizing:border-box;padding:12px;border-radius:8px;border:1px solid rgba(201,168,76,.4);background:#07111F;color:#fff;font-size:15px;margin-top:14px;"/>
+    <label style="display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:rgba(245,240,232,.5);margin-top:8px;cursor:pointer;">
+      <input type="checkbox" onchange="document.getElementById('master-code').type=this.checked?'text':'password'"/> 👁 Onyesha unachoandika
+    </label>
     <button onclick="resetPin()">Rudisha PIN Kuwa 8861</button>
     <div id="result"></div>
   </div>

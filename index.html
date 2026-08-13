@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
-<meta name="app-version" id="app-version-tag" content="2026.08.08-10"/>
+<meta name="app-version" id="app-version-tag" content="2026.08.08-11"/>
 <title>Shalom Tabernacle Churchtz</title>
 
   <link rel="manifest" href="manifest.json">
@@ -1069,6 +1069,9 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     <div class="admin-lock-title">Admin Panel</div>
     <div class="admin-lock-sub">Ingiza neno la siri kuendelea</div>
     <input class="admin-pin-input" type="password" id="admin-pin" placeholder="••••••" maxlength="10" onkeydown="if(event.key==='Enter')checkPin()"/>
+    <label style="display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:rgba(245,240,232,.5);margin:8px 0;cursor:pointer;">
+      <input type="checkbox" onchange="document.getElementById('admin-pin').type=this.checked?'text':'password'" style="width:14px;height:14px;"/> 👁 Onyesha PIN
+    </label>
     <button class="admin-enter-btn" onclick="checkPin()">🔓 Ingia</button>
     <div id="pin-error" style="color:#FF8080;font-size:12px;margin-top:10px;display:none;">❌ Neno la siri si sahihi!</div>
     <button onclick="resetPinToDefault()" style="background:none;border:none;color:rgba(245,240,232,.4);font-size:11px;text-decoration:underline;margin-top:16px;">Umesahau PIN? Rudisha kwa 8861</button>
@@ -3443,7 +3446,10 @@ function initProjectorView(){
 <div id="pin-modal" style="display:none;position:fixed;inset:0;z-index:99997;background:rgba(2,6,14,.85);align-items:center;justify-content:center;padding:20px;">
   <div style="background:linear-gradient(135deg,#0F1E38,#040C18);border:1px solid rgba(201,168,76,.35);border-radius:14px;padding:24px;max-width:320px;width:100%;text-align:center;">
     <div style="font-family:'Cinzel',serif;color:var(--gold);font-size:13.5px;margin-bottom:14px;line-height:1.5;" id="pin-modal-title">Weka PIN</div>
-    <input type="password" id="pin-modal-input" class="admin-input" inputmode="numeric" style="text-align:center;font-size:22px;letter-spacing:6px;margin-bottom:14px;"/>
+    <input type="password" id="pin-modal-input" class="admin-input" style="text-align:center;font-size:22px;letter-spacing:4px;margin-bottom:8px;"/>
+    <label style="display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:rgba(245,240,232,.5);margin-bottom:14px;cursor:pointer;">
+      <input type="checkbox" onchange="document.getElementById('pin-modal-input').type=this.checked?'text':'password'" style="width:14px;height:14px;"/> 👁 Onyesha unachoandika
+    </label>
     <div style="display:flex;gap:8px;">
       <button class="back-btn" style="flex:1;margin-bottom:0;" onclick="pinModalCancel()">Ghairi</button>
       <button class="admin-btn admin-btn-save" style="flex:1;" onclick="pinModalConfirm()">Sawa</button>
