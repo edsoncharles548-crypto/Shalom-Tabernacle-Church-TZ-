@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Rudisha PIN — Shalom Tabernacle</title>
+<style>
+  body{background:#07111F;color:#F5F0E8;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px;text-align:center;}
+  .box{background:#0F1E38;border:1px solid rgba(201,168,76,.4);border-radius:14px;padding:30px 24px;max-width:360px;}
+  h1{color:#C9A84C;font-size:18px;margin-bottom:14px;}
+  p{font-size:14px;color:rgba(245,240,232,.7);line-height:1.6;}
+  button{background:linear-gradient(135deg,#C9A84C,#8a6f2c);color:#07111F;border:none;border-radius:10px;padding:14px 24px;font-size:15px;font-weight:bold;margin-top:16px;cursor:pointer;width:100%;}
+  #result{margin-top:16px;font-size:14px;font-weight:bold;}
+</style>
+</head>
+<body>
+  <div class="box">
+    <h1>🔑 Rudisha PIN ya Admin</h1>
+    <p>Hii itarudisha PIN ya Shalom Tabernacle Church iwe <b>8861</b> tena, kwa kila mtu (Admin, Live, Kuproject Nyimbo).</p>
+    <button onclick="resetPin()">Rudisha PIN Kuwa 8861</button>
+    <div id="result"></div>
+  </div>
+<script>
+function resetPin(){
+  document.getElementById('result').textContent = '⏳ Inafanya kazi...';
+  fetch('https://shalom-tabernacle-church-default-rtdb.europe-west1.firebasedatabase.app/app_settings/pin.json', {method:'DELETE'})
+    .then(()=>{
+      document.getElementById('result').style.color = '#8fd18f';
+      document.getElementById('result').textContent = '✅ Imefanikiwa! Funga ukurasa huu, funga app ya Shalom Tabernacle kabisa, kisha ifungue tena. Tumia PIN: 8861';
+    })
+    .catch(()=>{
+      document.getElementById('result').style.color = '#FF8080';
+      document.getElementById('result').textContent = '❌ Imeshindwa. Hakikisha una intaneti, kisha jaribu tena.';
+    });
+}
+</script>
+</body>
+</html>
