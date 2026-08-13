@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
-<meta name="app-version" id="app-version-tag" content="2026.08.08-9"/>
+<meta name="app-version" id="app-version-tag" content="2026.08.08-10"/>
 <title>Shalom Tabernacle Churchtz</title>
 
   <link rel="manifest" href="manifest.json">
@@ -2056,7 +2056,11 @@ function changeAdminPin(){
     })
     .catch(()=>alert('Imeshindwa kuhifadhi PIN mpya. Angalia mtandao wako, kisha jaribu tena.'));
 }
-function resetPinToDefault(){
+const MASTER_RECOVERY_CODE = 'Shalom-Reset-2026'; // Siri hii inajulikana na wewe (msimamizi mkuu) tu — usiitoe kwa mtu yeyote. Ndiyo pekee inayoruhusu kurudisha PIN.
+async function resetPinToDefault(){
+  const code = await askPin('Weka Msimbo wa Siri wa Kurejesha (Master Recovery Code)');
+  if(code === null) return;
+  if(code !== MASTER_RECOVERY_CODE){ alert('❌ Msimbo huo si sahihi. Kurejesha PIN hakuruhusiwi bila huu msimbo.'); return; }
   if(!confirm('Hii itarudisha PIN kuwa 8861 kwa kila mtu (Admin, Live, Kuproject). Endelea?')) return;
   fetch(FB_BASE + '/app_settings/pin.json', { method:'DELETE' })
     .then(()=>{ PIN='8861'; alert('✅ PIN imerudishwa kuwa 8861. Itumie sasa kuingia.'); })

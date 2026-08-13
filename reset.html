@@ -17,11 +17,20 @@
   <div class="box">
     <h1>🔑 Rudisha PIN ya Admin</h1>
     <p>Hii itarudisha PIN ya Shalom Tabernacle Church iwe <b>8861</b> tena, kwa kila mtu (Admin, Live, Kuproject Nyimbo).</p>
+    <input type="password" id="master-code" placeholder="Msimbo wa Siri wa Kurejesha" style="width:100%;box-sizing:border-box;padding:12px;border-radius:8px;border:1px solid rgba(201,168,76,.4);background:#07111F;color:#fff;font-size:15px;margin-top:14px;"/>
     <button onclick="resetPin()">Rudisha PIN Kuwa 8861</button>
     <div id="result"></div>
   </div>
 <script>
+const MASTER_RECOVERY_CODE = 'Shalom-Reset-2026';
 function resetPin(){
+  const code = document.getElementById('master-code').value;
+  if(code !== MASTER_RECOVERY_CODE){
+    document.getElementById('result').style.color = '#FF8080';
+    document.getElementById('result').textContent = '❌ Msimbo wa siri si sahihi.';
+    return;
+  }
+  document.getElementById('result').style.color = '';
   document.getElementById('result').textContent = '⏳ Inafanya kazi...';
   fetch('https://shalom-tabernacle-church-default-rtdb.europe-west1.firebasedatabase.app/app_settings/pin.json', {method:'DELETE'})
     .then(()=>{
