@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
-<meta name="app-version" id="app-version-tag" content="2026.08.08-11"/>
+<meta name="app-version" id="app-version-tag" content="2026.08.08-16"/>
 <title>Shalom Tabernacle Churchtz</title>
 
   <link rel="manifest" href="manifest.json">
@@ -867,7 +867,14 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
       <button class="admin-btn admin-btn-save" onclick="saveMediaItem('special')">💾 Hifadhi</button>
       <div class="admin-success" id="sp-success">✅ Imehifadhiwa!</div>
     </div>
-    <div id="special-list" class="media-empty">Hakuna special songs bado. 🎤</div>
+    <div id="special-folders-view">
+      <div id="special-list" class="media-empty">Hakuna special songs bado. 🎤</div>
+    </div>
+    <div id="special-items-view" style="display:none;">
+      <button class="back-btn" onclick="closeMediaFolder('special')">← Rudi kwenye Folda</button>
+      <div class="media-upload-title" id="special-folder-title"></div>
+      <div id="special-items-list"></div>
+    </div>
   </div>
   <div id="mtab-audio-preach" class="media-tab-content">
     <div class="media-upload-box">
@@ -916,7 +923,14 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
       <button class="admin-btn admin-btn-save" onclick="saveMediaItem('sifa')">💾 Hifadhi</button>
       <div class="admin-success" id="sf-success">✅ Imehifadhiwa!</div>
     </div>
-    <div id="sifa-list" class="media-empty">Hakuna sifa bado. 🙌</div>
+    <div id="sifa-folders-view">
+      <div id="sifa-list" class="media-empty">Hakuna sifa bado. 🙌</div>
+    </div>
+    <div id="sifa-items-view" style="display:none;">
+      <button class="back-btn" onclick="closeMediaFolder('sifa')">← Rudi kwenye Folda</button>
+      <div class="media-upload-title" id="sifa-folder-title"></div>
+      <div id="sifa-items-list"></div>
+    </div>
   </div>
 </div>
 
@@ -1163,7 +1177,10 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
           <span class="file-upload-icon">📷</span>
           <div class="file-upload-text">Bonyeza kuchagua picha (JPG, PNG)</div>
         </div>
-        <input type="file" id="p-file" accept="image/*" multiple style="display:none" onchange="handlePhotoUpload(this)"/>
+        <input type="file" id="p-file" accept="image/*" multiple style="display:none" onchange="previewPhotoUpload(this)"/>
+        <div id="p-preview-grid" class="photo-grid" style="display:none;margin-bottom:10px;"></div>
+        <button class="admin-btn admin-btn-save" id="p-save-btn" style="display:none;width:100%;" onclick="handlePhotoUpload()">💾 Hifadhi Picha</button>
+        <div style="display:none;text-align:center;color:rgba(245,240,232,.4);font-size:11.5px;padding:6px 0;" id="p-saving">⏳ Inahifadhi...</div>
         <div class="admin-success" id="p-success">✅ Picha zimehifadhiwa!</div>
       </div>
       <div class="admin-section">
@@ -1789,6 +1806,17 @@ function memSave(k,v){
   try{localStorage.setItem('stc_'+k,JSON.stringify(v));}catch(e){}
   fetch(FB_BASE + '/church_data/'+k+'.json', {method:'PUT', body:JSON.stringify(v)}).catch(()=>{});
 }
+// Hifadhi kipengele KIMOJA (si kundi zima) — kinazuia data kupotea watu wawili wakihifadhi kwa wakati mmoja
+function fbItemSave(collection, item){
+  fetch(FB_BASE + '/church_data/'+collection+'/'+item.id+'.json', { method:'PUT', body: JSON.stringify(item) }).catch(()=>{});
+}
+function fbItemDelete(collection, id){
+  fetch(FB_BASE + '/church_data/'+collection+'/'+id+'.json', { method:'DELETE' }).catch(()=>{});
+}
+function memUpdateLocal(k, v){
+  MEM[k]=v;
+  try{localStorage.setItem('stc_'+k,JSON.stringify(v));}catch(e){}
+}
 function memLoad(k){ try{const v=localStorage.getItem('stc_'+k); if(v)MEM[k]=JSON.parse(v);}catch(e){} return MEM[k]; }
 
 // ---- TABS ----
@@ -2023,7 +2051,8 @@ function quickSaveSong(){
   if(!yt&&!mp3){alert('Weka link ya YouTube au faili ya MP3!');return;}
   const saved=memLoad('song_audio')||{};
   saved[num]={yt:yt||null,mp3:mp3||null};
-  memSave('song_audio',saved);
+  memUpdateLocal('song_audio',saved);
+  fetch(FB_BASE + '/church_data/song_audio/'+num+'.json', {method:'PUT', body: JSON.stringify(saved[num])}).catch(()=>{});
   const s=SONGS_AUDIO.find(x=>x.num===num);
   if(s){s.yt=yt||null;s.mp3=mp3||null;}
   document.getElementById('quick-song-yt').value='';
@@ -2041,11 +2070,11 @@ function populateQuickSelect(){
 }
 
 // ---- ADMIN ----
-function changeAdminPin(){
+async function changeAdminPin(){
   const oldPin = document.getElementById('pin-old').value;
   const newPin = document.getElementById('pin-new').value;
   const confirmPin = document.getElementById('pin-new-confirm').value;
-  if(oldPin !== PIN){ alert('❌ PIN ya sasa uliyoweka si sahihi.'); return; }
+  if(!(await verifyPin(oldPin))){ alert('❌ PIN ya sasa uliyoweka si sahihi.'); return; }
   if(!newPin || newPin.length<4){ alert('Weka PIN mpya yenye angalau tarakimu 4.'); return; }
   if(newPin !== confirmPin){ alert('❌ PIN mpya na uthibitisho hazifanani.'); return; }
   fetch(FB_BASE + '/app_settings/pin.json', { method:'PUT', body: JSON.stringify(newPin) })
@@ -2069,14 +2098,27 @@ async function resetPinToDefault(){
     .then(()=>{ PIN='8861'; alert('✅ PIN imerudishwa kuwa 8861. Itumie sasa kuingia.'); })
     .catch(()=>alert('Imeshindwa. Angalia mtandao wako, kisha jaribu tena.'));
 }
-function checkPin(){
-  if(document.getElementById('admin-pin').value===PIN){
+async function verifyPin(entered){
+  if(entered === PIN) return true;
+  try{
+    const r = await fetch(FB_BASE + '/app_settings/pin.json', { cache: 'no-store' });
+    const remote = await r.json();
+    if(remote && entered === remote){ PIN = remote; return true; }
+  }catch(e){}
+  return false;
+}
+async function checkPin(){
+  const entered = document.getElementById('admin-pin').value;
+  const ok = await verifyPin(entered);
+  if(ok){
     document.getElementById('admin-lock').style.display='none';
     document.getElementById('admin-panel-content').classList.add('open');
     document.getElementById('pin-error').style.display='none';
     loadAdminData();
     listenQnaSubmissions();
-  }else{document.getElementById('pin-error').style.display='block';document.getElementById('admin-pin').value='';}
+    return;
+  }
+  document.getElementById('pin-error').style.display='block';document.getElementById('admin-pin').value='';
 }
 function adminLogout(){
   document.getElementById('admin-lock').style.display='block';
@@ -2102,12 +2144,12 @@ function handleAudioFile(nameId,dataId,input){
 function saveSermon(){
   const title=document.getElementById('s-title').value.trim(); if(!title){alert('Weka kichwa!');return;}
   const s={id:Date.now(),title,preacher:document.getElementById('s-preacher').value.trim()||'Mch. J. Pill',date:document.getElementById('s-date').value.trim(),day:document.getElementById('s-day').value,yt:document.getElementById('s-yt').value.trim(),audio:document.getElementById('s-audio-data').value};
-  const list=memLoad('sermons')||[]; list.unshift(s); memSave('sermons',list);
+  const list=memLoad('sermons')||[]; list.unshift(s); memUpdateLocal('sermons',list); fbItemSave('sermons', s);
   ['s-title','s-preacher','s-date','s-yt','s-audio-data'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('s-audio-name').textContent='';
   showSuccess('s-success'); loadAdminData(); renderDynamicSermons();
 }
-function deleteSermon(id){let l=memLoad('sermons')||[];l=l.filter(s=>s.id!==id);memSave('sermons',l);loadAdminData();renderDynamicSermons();}
+function deleteSermon(id){let l=memLoad('sermons')||[];l=l.filter(s=>s.id!==id);memUpdateLocal('sermons',l);fbItemDelete('sermons',id);loadAdminData();renderDynamicSermons();}
 function renderDynamicSermons(){
   const sermons=memLoad('sermons')||[];
   const c=document.querySelector('.dynamic-sermons'); if(!c)return;
@@ -2123,11 +2165,11 @@ function renderDynamicSermons(){
 function saveVideo(){
   const title=document.getElementById('v-title').value.trim(); if(!title){alert('Weka kichwa!');return;}
   const v={id:Date.now(),title,date:document.getElementById('v-date').value.trim(),yt:document.getElementById('v-yt').value.trim()};
-  const list=memLoad('videos')||[]; list.unshift(v); memSave('videos',list);
+  const list=memLoad('videos')||[]; list.unshift(v); memUpdateLocal('videos',list); fbItemSave('videos', v);
   ['v-title','v-date','v-yt'].forEach(id=>document.getElementById(id).value='');
   showSuccess('v-success'); loadAdminData(); renderDynamicVideos();
 }
-function deleteVideo(id){let l=memLoad('videos')||[];l=l.filter(v=>v.id!==id);memSave('videos',l);loadAdminData();renderDynamicVideos();}
+function deleteVideo(id){let l=memLoad('videos')||[];l=l.filter(v=>v.id!==id);memUpdateLocal('videos',l);fbItemDelete('videos',id);loadAdminData();renderDynamicVideos();}
 function renderDynamicVideos(){
   const videos=memLoad('videos')||[];
   const c=document.getElementById('main-videos-list'); if(!c)return;
@@ -2143,11 +2185,11 @@ function renderDynamicVideos(){
 function saveYouthVideo(){
   const title=document.getElementById('yv-title').value.trim(); if(!title){alert('Weka kichwa!');return;}
   const v={id:Date.now(),title,date:document.getElementById('yv-date').value.trim(),yt:document.getElementById('yv-yt').value.trim()};
-  const list=memLoad('youth_videos')||[]; list.unshift(v); memSave('youth_videos',list);
+  const list=memLoad('youth_videos')||[]; list.unshift(v); memUpdateLocal('youth_videos',list); fbItemSave('youth_videos', v);
   ['yv-title','yv-date','yv-yt'].forEach(id=>document.getElementById(id).value='');
   showSuccess('yv-success'); loadAdminData(); renderYouthVideos();
 }
-function deleteYouthVideo(id){let l=memLoad('youth_videos')||[];l=l.filter(v=>v.id!==id);memSave('youth_videos',l);loadAdminData();renderYouthVideos();}
+function deleteYouthVideo(id){let l=memLoad('youth_videos')||[];l=l.filter(v=>v.id!==id);memUpdateLocal('youth_videos',l);fbItemDelete('youth_videos',id);loadAdminData();renderYouthVideos();}
 function renderYouthVideos(){
   const videos=memLoad('youth_videos')||[];
   const c=document.getElementById('youth-videos-list'); if(!c)return;
@@ -2161,29 +2203,61 @@ function renderYouthVideos(){
 }
 
 // PHOTOS
-function handlePhotoUpload(input){
+let pendingPhotoDataUrls = [];
+function previewPhotoUpload(input){
   const files=Array.from(input.files);
-  const caption=document.getElementById('p-caption').value.trim();
-  const album=document.getElementById('p-album').value.trim() || 'Picha za Kanisa';
-  const photos=memLoad('photos')||[];
+  if(files.length===0) return;
+  pendingPhotoDataUrls = [];
   let loaded=0;
+  const grid = document.getElementById('p-preview-grid');
+  grid.innerHTML=''; grid.style.display='grid';
   files.forEach(file=>{
     const r=new FileReader();
     r.onload=e=>{
-      photos.unshift({id:Date.now()+Math.random(),src:e.target.result,caption,album,ts:Date.now()});
+      pendingPhotoDataUrls.push(e.target.result);
+      const thumb=document.createElement('div');
+      thumb.className='photo-thumb';
+      thumb.innerHTML=`<img src="${e.target.result}" alt="Preview"/>`;
+      grid.appendChild(thumb);
       loaded++;
       if(loaded===files.length){
-        memSave('photos',photos);
-        showSuccess('p-success');
-        loadAdminData();
-        renderPichaGallery();
-        document.getElementById('p-caption').value='';
+        document.getElementById('p-save-btn').style.display='block';
       }
     };
     r.readAsDataURL(file);
   });
 }
-function deletePhoto(id){let l=memLoad('photos')||[];l=l.filter(p=>p.id!==id);memSave('photos',l);loadAdminData();renderPichaGallery();}
+function handlePhotoUpload(){
+  if(pendingPhotoDataUrls.length===0){ alert('Chagua picha kwanza.'); return; }
+  const caption=document.getElementById('p-caption').value.trim();
+  const album=document.getElementById('p-album').value.trim() || 'Picha za Kanisa';
+  const photos=memLoad('photos')||[];
+  document.getElementById('p-save-btn').style.display='none';
+  document.getElementById('p-saving').style.display='block';
+  let saved=0;
+  const total=pendingPhotoDataUrls.length;
+  pendingPhotoDataUrls.forEach(src=>{
+    const photo={id:Date.now()+'_'+Math.floor(Math.random()*1000000),src,caption,album,ts:Date.now()};
+    photos.unshift(photo);
+    fetch(FB_BASE + '/church_data/photos/'+photo.id+'.json', { method:'PUT', body: JSON.stringify(photo) })
+      .then(()=>{ saved++; checkPhotoSaveDone(); })
+      .catch(()=>{ saved++; checkPhotoSaveDone(); });
+  });
+  function checkPhotoSaveDone(){
+    if(saved!==total) return;
+    memUpdateLocal('photos',photos);
+    document.getElementById('p-saving').style.display='none';
+    showSuccess('p-success');
+    loadAdminData();
+    renderPichaGallery();
+    document.getElementById('p-caption').value='';
+    document.getElementById('p-preview-grid').style.display='none';
+    document.getElementById('p-preview-grid').innerHTML='';
+    document.getElementById('p-file').value='';
+    pendingPhotoDataUrls=[];
+  }
+}
+function deletePhoto(id){let l=memLoad('photos')||[];l=l.filter(p=>p.id!==id);memUpdateLocal('photos',l);fbItemDelete('photos',id);loadAdminData();renderPichaGallery();}
 
 // ---- PICHA (Public Gallery na Albums) ----
 function renderPichaGallery(){
@@ -2250,7 +2324,8 @@ function saveMediaItem(type){
   const media=memLoad('media')||{};
   if(!media[type])media[type]=[];
   media[type].unshift(item);
-  memSave('media',media);
+  memUpdateLocal('media',media);
+  fbItemSave('media_'+type, item);
   Object.values(map).forEach(id=>{const el=document.getElementById(id);if(el&&id!==map.success)el.value='';});
   ['sp-file-name','ap-file-name','sf-file-name'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='';});
   const suc=document.getElementById(map.success);
@@ -2260,7 +2335,15 @@ function saveMediaItem(type){
 function deleteMediaItem(type,id){
   const media=memLoad('media')||{};
   if(media[type])media[type]=media[type].filter(i=>i.id!==id);
-  memSave('media',media); renderMediaList(type);
+  memUpdateLocal('media',media);
+  fbItemDelete('media_'+type, id);
+  renderMediaList(type);
+  const itemsView = document.getElementById(type+'-items-view');
+  if(itemsView && itemsView.style.display!=='none'){
+    const title = document.getElementById(type+'-folder-title').textContent.replace('📁 ','');
+    const items = (media[type]||[]).filter(i=>(i.artist||'Bila Jina la Mwimbaji')===title);
+    document.getElementById(type+'-items-list').innerHTML = items.map(item=>renderMediaItemRow(type,item)).join('');
+  }
 }
 let currentAudio=null;
 function playMediaAudio(src,title){
@@ -2271,26 +2354,56 @@ function playMediaAudio(src,title){
   el.src=src; el.play(); bar.style.display='block'; currentAudio=el;
 }
 function closeMediaPlayer(){if(currentAudio){currentAudio.pause();currentAudio=null;}document.getElementById('media-player-bar').style.display='none';}
+const FOLDERABLE_MEDIA = ['special','sifa'];
 function renderMediaList(type){
   const media=memLoad('media')||{};
   const list=(media[type])||[];
+  if(FOLDERABLE_MEDIA.includes(type)){ renderMediaFolders(type, list); return; }
   const c=document.getElementById(type+'-list'); if(!c)return;
-  if(!list.length){c.innerHTML=`<div class="media-empty">Hakuna ${type==='special'?'special songs':type==='audio-preach'?'audio mahubiri':type==='video-preach'?'video mahubiri':'sifa'} bado. ${MEDIA_ICONS[type]}</div>`;return;}
-  c.innerHTML=list.map(item=>{
-    let actions='';
-    if(item.audio)actions+=`<button class="media-play-btn" onclick="playMediaAudio('${item.audio}','${item.title.replace(/'/g,"\'")}')" >▶</button>`;
-    if(item.yt)actions+=`<a href="${item.yt}" target="_blank" class="yt-link-badge">▶ YT</a>`;
-    actions+=`<button class="media-del-btn" onclick="deleteMediaItem('${type}',${item.id})">🗑</button>`;
-    let thumb='';
-    if(type==='video-preach'&&item.yt){const ytId=item.yt.includes('v=')?item.yt.split('v=')[1].split('&')[0]:item.yt.split('/').pop().split('?')[0];thumb=`<img src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" style="width:60px;height:44px;object-fit:cover;border-radius:6px;"/>`;}
-    return `<div class="media-item">${thumb||`<div class="media-item-icon" style="background:${MEDIA_COLORS[type]}">${MEDIA_ICONS[type]}</div>`}<div class="media-item-info"><div class="media-item-title">${item.title}</div><div class="media-item-sub">${[item.artist,item.date].filter(Boolean).join(' • ')}</div></div><div class="media-item-actions">${actions}</div></div>`;
-  }).join('');
+  if(!list.length){c.innerHTML=`<div class="media-empty">Hakuna ${type==='audio-preach'?'audio mahubiri':'video mahubiri'} bado. ${MEDIA_ICONS[type]}</div>`;return;}
+  c.innerHTML=list.map(item=>renderMediaItemRow(type,item)).join('');
+}
+function renderMediaItemRow(type,item){
+  let actions='';
+  if(item.audio)actions+=`<button class="media-play-btn" onclick="playMediaAudio('${item.audio}','${item.title.replace(/'/g,"\\'")}')" >▶</button>`;
+  if(item.yt)actions+=`<a href="${item.yt}" target="_blank" class="yt-link-badge">▶ YT</a>`;
+  actions+=`<button class="media-del-btn" onclick="deleteMediaItem('${type}',${item.id})">🗑</button>`;
+  let thumb='';
+  if(type==='video-preach'&&item.yt){const ytId=item.yt.includes('v=')?item.yt.split('v=')[1].split('&')[0]:item.yt.split('/').pop().split('?')[0];thumb=`<img src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" style="width:60px;height:44px;object-fit:cover;border-radius:6px;"/>`;}
+  return `<div class="media-item">${thumb||`<div class="media-item-icon" style="background:${MEDIA_COLORS[type]}">${MEDIA_ICONS[type]}</div>`}<div class="media-item-info"><div class="media-item-title">${item.title}</div><div class="media-item-sub">${[item.artist,item.date].filter(Boolean).join(' • ')}</div></div><div class="media-item-actions">${actions}</div></div>`;
+}
+function renderMediaFolders(type, list){
+  const c=document.getElementById(type+'-list'); if(!c)return;
+  if(!list.length){c.innerHTML=`<div class="media-empty">Hakuna ${type==='special'?'special songs':'sifa'} bado. ${MEDIA_ICONS[type]}</div>`;return;}
+  const folders={};
+  list.forEach(item=>{ const a=item.artist||'Bila Jina la Mwimbaji'; if(!folders[a])folders[a]=[]; folders[a].push(item); });
+  const names=Object.keys(folders).sort();
+  c.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">`+names.map(name=>`
+    <div style="cursor:pointer;background:linear-gradient(135deg,rgba(15,30,56,.9),rgba(7,17,31,.9));border:1px solid rgba(201,168,76,.22);border-radius:12px;padding:16px 12px;text-align:center;" onclick="openMediaFolder('${type}','${name.replace(/'/g,"\\'")}')">
+      <div style="font-size:32px;margin-bottom:8px;">📁</div>
+      <div style="font-family:'Cinzel',serif;font-size:12px;color:var(--gold);">${name}</div>
+      <div style="font-size:10.5px;color:rgba(245,240,232,.4);margin-top:4px;">${folders[name].length} wimbo${folders[name].length>1?'':''}</div>
+    </div>`).join('')+`</div>`;
+}
+function openMediaFolder(type,artist){
+  const media=memLoad('media')||{};
+  const items=(media[type]||[]).filter(i=>(i.artist||'Bila Jina la Mwimbaji')===artist);
+  document.getElementById(type+'-folder-title').textContent = '📁 '+artist;
+  document.getElementById(type+'-items-list').innerHTML = items.map(item=>renderMediaItemRow(type,item)).join('');
+  document.getElementById(type+'-folders-view').style.display='none';
+  document.getElementById(type+'-items-view').style.display='block';
+}
+function closeMediaFolder(type){
+  document.getElementById(type+'-folders-view').style.display='block';
+  document.getElementById(type+'-items-view').style.display='none';
+  renderMediaList(type);
 }
 function renderAllMedia(){['special','audio-preach','video-preach','sifa'].forEach(renderMediaList);}
 
 // GROUP LOCKS
-function unlockGroup(type){
-  if(document.getElementById(type+'-pin').value===PIN){
+async function unlockGroup(type){
+  const entered = document.getElementById(type+'-pin').value;
+  if(await verifyPin(entered)){
     document.getElementById(type+'-group-lock').style.display='none';
     document.getElementById(type+'-group-content').classList.add('unlocked');
     document.getElementById(type+'-pin-error').style.display='none';
@@ -2328,7 +2441,7 @@ function loadAdminData(){
   if(yvl)yvl.innerHTML=yvideos.length?yvideos.map(v=>`<div class="admin-item"><div class="admin-item-info"><div class="admin-item-title">${v.title}</div><div class="admin-item-sub">${v.date}</div></div><button class="admin-btn admin-btn-del" onclick="deleteYouthVideo(${v.id})">🗑</button></div>`).join(''):'<div style="font-size:12px;color:rgba(245,240,232,.3);text-align:center;padding:10px;">Hakuna video za vijana bado</div>';
   const photos=memLoad('photos')||[];
   const pg=document.getElementById('photo-admin-grid');
-  if(pg)pg.innerHTML=photos.map(p=>`<div class="photo-thumb"><img src="${p.src}" alt="${p.caption||'Picha'}"/><button class="photo-thumb-del" onclick="deletePhoto(${p.id})">✕</button></div>`).join('');
+  if(pg)pg.innerHTML=photos.map(p=>`<div class="photo-thumb"><img src="${p.src}" alt="${p.caption||'Picha'}"/><button class="photo-thumb-del" onclick="deletePhoto('${p.id}')">✕</button></div>`).join('');
 }
 
 // INIT
@@ -2369,22 +2482,41 @@ function initApp(){
   syncChurchDataFromFirebase();
 }
 function syncChurchDataFromFirebase(){
-  fetch(FB_BASE + '/app_settings/pin.json').then(r=>r.json()).then(p=>{ if(p) PIN = p; }).catch(()=>{});
+  fetch(FB_BASE + '/app_settings/pin.json', { cache: 'no-store' }).then(r=>r.json()).then(p=>{ if(p) PIN = p; }).catch(()=>{});
   fetch(FB_BASE + '/church_data.json').then(r=>r.json()).then(data=>{
     if(!data) return;
-    Object.keys(data).forEach(k=>{
-      MEM[k]=data[k];
-      try{localStorage.setItem('stc_'+k,JSON.stringify(data[k]));}catch(e){}
+    // Vipengele vinavyohifadhiwa kimoja-kimoja (kila kimoja na 'id' yake) - geuza object -> array, mpya kwanza
+    const arrayCollections = ['sermons','videos','youth_videos','photos'];
+    arrayCollections.forEach(k=>{
+      if(data[k] && typeof data[k]==='object' && !Array.isArray(data[k])){
+        const arr = Object.values(data[k]).sort((a,b)=>(String(b.id||'')).localeCompare(String(a.id||'')));
+        memUpdateLocal(k, arr);
+      } else if(Array.isArray(data[k])){
+        memUpdateLocal(k, data[k]); // muundo wa zamani (backward compatibility)
+      }
     });
-    // sasisha maonyesho yote yaliyotegemea data hii, sasa kutoka Firebase (yanayoshirikiwa na kila mtu)
-    if(data.song_audio){
-      Object.keys(data.song_audio).forEach(num=>{
-        const s=SONGS_AUDIO.find(x=>x.num===parseInt(num));
-        if(s){ s.yt=data.song_audio[num].yt||null; s.mp3=data.song_audio[num].mp3||null; }
-      });
-      renderSongs(SONGS_AUDIO);
-      renderAudioHymns();
+    // media_<type> -> jenga upya MEM.media = {type: [...]}
+    const mediaTypes = ['special','audio-preach','video-preach','sifa'];
+    const media = MEM.media || {'special':[],'audio-preach':[],'video-preach':[],'sifa':[]};
+    mediaTypes.forEach(t=>{
+      const key = 'media_'+t;
+      if(data[key] && typeof data[key]==='object'){
+        media[t] = Object.values(data[key]).sort((a,b)=>(b.id||0)-(a.id||0));
+      }
+    });
+    if(data.media && typeof data.media==='object'){ // muundo wa zamani (backward compatibility)
+      mediaTypes.forEach(t=>{ if(data.media[t]) media[t]=data.media[t]; });
     }
+    memUpdateLocal('media', media);
+    // song_audio - tayari ni object iliyowekwa kwa 'num', tumia moja kwa moja
+    const songAudio = data.song_audio || {};
+    memUpdateLocal('song_audio', songAudio);
+    Object.keys(songAudio).forEach(num=>{
+      const s=SONGS_AUDIO.find(x=>x.num===parseInt(num));
+      if(s && songAudio[num]){ s.yt=songAudio[num].yt||null; s.mp3=songAudio[num].mp3||null; }
+    });
+    renderSongs(SONGS_AUDIO);
+    renderAudioHymns();
     renderDynamicSermons();
     renderDynamicVideos();
     renderYouthVideos();
@@ -2522,7 +2654,8 @@ function saveAudioHymn(num){
   
   const saved = memLoad('song_audio') || {};
   saved[num] = { mp3: mp3||null, yt: yt||null };
-  memSave('song_audio', saved);
+  memUpdateLocal('song_audio', saved);
+  fetch(FB_BASE + '/church_data/song_audio/'+num+'.json', {method:'PUT', body: JSON.stringify(saved[num])}).catch(()=>{});
   
   // Update SONGS_AUDIO too
   const s = SONGS_AUDIO.find(x=>x.num===num);
@@ -2539,7 +2672,8 @@ function clearAudioHymn(num){
   if(!confirm('Futa audio ya wimbo huu?')) return;
   const saved = memLoad('song_audio') || {};
   delete saved[num];
-  memSave('song_audio', saved);
+  memUpdateLocal('song_audio', saved);
+  fetch(FB_BASE + '/church_data/song_audio/'+num+'.json', {method:'DELETE'}).catch(()=>{});
   const s = SONGS_AUDIO.find(x=>x.num===num);
   if(s){ s.mp3=null; s.yt=null; }
   renderAudioHymns();
@@ -2755,7 +2889,7 @@ document.getElementById('pin-modal-input')?.addEventListener('keydown', e=>{ if(
 
 async function openJitsiLiveHost(){
   let pin = await askPin('Weka neno la siri la Admin kuanza Live');
-  while(pin!==null && pin!==PIN){ pin = await askPin('❌ Si sahihi. Jaribu tena — Weka neno la siri la Admin'); }
+  while(pin!==null && !(await verifyPin(pin))){ pin = await askPin('❌ Si sahihi. Jaribu tena — Weka neno la siri la Admin'); }
   if(pin===null) return;
   startJitsiRoom(JITSI_LIVE_ROOM, '📡 Live — Kiongozi', {startMuted:false, displayName:'Mch. J. Pill'});
 }
@@ -3077,7 +3211,7 @@ let projSongIdx = 0;
 async function startSongProjection(){
   if(!CURRENT_HYMN) return;
   let pin = await askPin('Weka PIN kuanza kuproject (Admin au Kiongozi wa Nyimbo)');
-  while(pin!==null && pin!==PIN){ pin = await askPin('❌ PIN si sahihi. Jaribu tena'); }
+  while(pin!==null && !(await verifyPin(pin))){ pin = await askPin('❌ PIN si sahihi. Jaribu tena'); }
   if(pin===null) return;
   projSongIdx = 0;
   document.getElementById('proj-control-bar').style.display='block';
