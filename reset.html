@@ -25,7 +25,7 @@
     <div id="result"></div>
   </div>
 <script>
-const MASTER_RECOVERY_CODE = 'Shalom-Reset-2026';
+const MASTER_RECOVERY_CODE = 'ECKST8861';
 function resetPin(){
   const code = document.getElementById('master-code').value;
   if(code !== MASTER_RECOVERY_CODE){
@@ -35,7 +35,7 @@ function resetPin(){
   }
   document.getElementById('result').style.color = '';
   document.getElementById('result').textContent = '⏳ Inafanya kazi...';
-  fetch('https://shalom-tabernacle-church-default-rtdb.europe-west1.firebasedatabase.app/app_settings/pin.json', {method:'DELETE'})
+  fetch('https://shalom-tabernacle-church-default-rtdb.europe-west1.firebasedatabase.app/app_settings/pin.json', {method:'DELETE', cache:'no-store'})
     .then(()=>{
       document.getElementById('result').style.color = '#8fd18f';
       document.getElementById('result').textContent = '✅ Imefanikiwa! Funga ukurasa huu, funga app ya Shalom Tabernacle kabisa, kisha ifungue tena. Tumia PIN: 8861';
